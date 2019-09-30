@@ -145,6 +145,7 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
 
         if (showInfo) {
             mGalleryView.show((List<ArticlePoint>) new ArrayList(set));
+//            mGalleryView.show(ArrayUtils.createList(((ArticlePoint) hashPoint)));
         }
 
     }
@@ -188,7 +189,7 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
     @Override
     public void onGalleryItemSelect(int position, ArticlePoint articleItem) {
         mMarkerLayout.createSearchLocationGraphic(articleItem.x, articleItem.y);
-        Point target = new Point(articleItem.x, articleItem.y, 600000);
+        Point target = new Point(articleItem.x, articleItem.y, 3000000);
         EarthUtils.moveMap(mSceneView, target, Constants.mFlyToPeriod);
     }
 

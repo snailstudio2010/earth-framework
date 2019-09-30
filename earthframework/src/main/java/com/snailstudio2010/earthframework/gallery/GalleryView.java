@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.content.Context;
+import android.os.Handler;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -114,6 +115,30 @@ public class GalleryView extends RelativeLayout {
         mObjectAnimator = ObjectAnimator.ofPropertyValuesHolder(this, pvhY);
         mObjectAnimator.setDuration(300);
         mObjectAnimator.start();
+        mObjectAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                GalleryView.this.requestLayout();
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                GalleryView.this.requestLayout();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+
+        new Handler().postDelayed(this::requestLayout, 100);
+        new Handler().postDelayed(this::requestLayout, 200);
     }
 
     public boolean isShowing() {

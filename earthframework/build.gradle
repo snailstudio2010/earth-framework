@@ -43,5 +43,5 @@ dependencies {
     }
     api rootProject.ext.dependencies["annotations"]
     api 'com.esri.arcgisruntime:arcgis-android:100.6.0'
-    api 'com.github.snailstudio2010:libutils:1.0.1'
+    api 'com.github.snailstudio2010:libutils:1.0.2'
 }

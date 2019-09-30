@@ -1,4 +1,4 @@
-package com.snailstudio2010.earthframework;
+package com.snailstudio2010.earthframework.component;
 
 import android.content.Context;
 import android.util.AttributeSet;

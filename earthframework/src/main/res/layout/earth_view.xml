@@ -18,7 +18,7 @@
         android:translationY="268dp"
         android:visibility="invisible" />
 
-    <com.snailstudio2010.earthframework.Mask
+    <com.snailstudio2010.earthframework.component.Mask
         android:id="@+id/mask"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

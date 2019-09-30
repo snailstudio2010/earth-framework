@@ -89,6 +89,7 @@ public class GalleryAdapter extends PagerAdapter {
             rll.height = (int) DisplayUtils.dip2px(mContext, 152);
             ivAvatar.setLayoutParams(rll);
         }
+
 //        if (!TextUtils.isEmpty(item.getPhoto())) {
 //            // "http://cdn.national-space.com/Fhz22vfh7EhUO3igOggwdn2UZqu-"
 //            ImageUtils.loadImage(mContext, item.getPhoto(), ivAvatar, R.mipmap.toolbar, true);
