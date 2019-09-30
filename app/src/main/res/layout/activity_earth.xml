@@ -4,13 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
-    tools:context=".MainActivity">
+    tools:context=".EarthActivity">
 
     <com.snailstudio2010.earthframework.EarthView
         android:id="@+id/earthView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="-25dp" />
+        android:layout_height="match_parent" />
 
     <ImageView
         android:id="@+id/iv_refresh"

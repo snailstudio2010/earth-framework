@@ -20,6 +20,7 @@ import com.snailstudio2010.libutils.StatusBarUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import static com.snailstudio2010.earthframework.EarthUtils.logD;
@@ -72,9 +73,15 @@ public class EarthActivity extends AppCompatActivity implements MarkerLayout.OnM
                 "超级工程“中国天眼”牛在哪？",
                 "12000年历史的土耳其古镇即将被吞没",
         };
+        String[] photos = {
+                null,
+                "http://earthlive-imgs.national-space.com/FjAvDfPQzBJUU4U1Tea7RUpR-Amk",
+                "http://earthlive-imgs.national-space.com/09-19/WGAvzrlHcEnq6Qxd0RvVA.png",
+                "http://cdn.national-space.com/09-17/pViTphZXyw9fpZsLBQtFi.png",
+        };
         List<ArticlePoint> list = new ArrayList<>();
         for (String info : infos) {
-            list.add(new ArticlePoint(Math.random() * 180, Math.random() * 70, info, null));
+            list.add(new ArticlePoint(Math.random() * 180, Math.random() * 70, info, photos[new Random().nextInt(photos.length)]));
         }
 
         if (mMarkerAdapter == null) {

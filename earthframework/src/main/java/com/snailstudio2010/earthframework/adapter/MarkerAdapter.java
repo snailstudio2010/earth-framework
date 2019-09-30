@@ -5,19 +5,30 @@
 package com.snailstudio2010.earthframework.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.snailstudio2010.earthframework.ImageUtils;
 import com.snailstudio2010.earthframework.MarkerLayout;
 import com.snailstudio2010.earthframework.R;
 import com.snailstudio2010.earthframework.entity.ArticlePoint;
 import com.snailstudio2010.libutils.ArrayUtils;
 import com.snailstudio2010.libutils.DisplayUtils;
 
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 import java.util.Set;
+
+import static com.snailstudio2010.earthframework.EarthUtils.logD;
 
 /**
  * Created by xuqiqiang on 2019/09/27.
@@ -42,6 +53,7 @@ public class MarkerAdapter extends MarkerLayout.Adapter<ArticlePoint, MarkerAdap
     public void onBindViewHolder(@NonNull ViewHolder holder, ArticlePoint point, Set<ArticlePoint> set) {
         if (point != null) {
             holder.tvInfo.setText(point.info);
+            if (point.bitmap != null) holder.ivPhoto.setImageBitmap(point.bitmap);
         }
 
         if (!ArrayUtils.isEmpty(set)) {
@@ -66,15 +78,77 @@ public class MarkerAdapter extends MarkerLayout.Adapter<ArticlePoint, MarkerAdap
         notifyDataSetChanged();
     }
 
+    @Override
+    public boolean needLoadAsync(ArticlePoint hashPoint) {
+        logD("needLoadAsync:" + hashPoint.photo);
+        return hashPoint.bitmap == null && !TextUtils.isEmpty(hashPoint.photo);
+    }
+
+    @Override
+    public void onLoadAsync(ArticlePoint hashPoint, Runnable resolve) {
+        logD("resource:" + hashPoint.photo);
+
+        new Thread() {
+            public void run() {
+
+//                try {
+//                    URL iconUrl = new URL(hashPoint.photo);
+//                    URLConnection conn = iconUrl.openConnection();
+//                    HttpURLConnection http = (HttpURLConnection) conn;
+//
+//                    int length = http.getContentLength();
+//
+//                    conn.connect();
+//                    // 获得图像的字符流
+//                    InputStream is = conn.getInputStream();
+//                    BufferedInputStream bis = new BufferedInputStream(is, length);
+//                    hashPoint.bitmap = BitmapFactory.decodeStream(bis);
+//                    bis.close();
+//                    is.close();// 关闭流
+//                }
+//                catch (Exception e) {
+//                    e.printStackTrace();
+//                } finally {
+//                    resolve.run();
+//                }
+
+
+
+
+
+                try {
+                    URL url = new URL(hashPoint.photo);
+                    String responseCode = url.openConnection().getHeaderField(0);
+                    logD("responseCode:" + responseCode);
+//                    if (responseCode.contains("200")) {
+                        Bitmap bitmap = BitmapFactory.decodeStream(url.openStream());
+                        if (!bitmap.isRecycled()) {
+                            hashPoint.bitmap = ImageUtils.centerCrop(bitmap);
+                        }
+//                    }
+
+//                    hashPoint.bitmap = BitmapFactory.decodeStream(url.openStream());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    resolve.run();
+                }
+            }
+        }.start();
+
+    }
+
     class ViewHolder extends MarkerLayout.ViewHolder {
 
         TextView tvInfo;
         ImageView ivMore;
+        ImageView ivPhoto;
 
         ViewHolder(Context context, int layoutId) {
             super(context, layoutId);
             tvInfo = itemView.findViewById(R.id.tv_info);
             ivMore = itemView.findViewById(R.id.iv_more);
+            ivPhoto = itemView.findViewById(R.id.iv_photo);
         }
 
         @Override

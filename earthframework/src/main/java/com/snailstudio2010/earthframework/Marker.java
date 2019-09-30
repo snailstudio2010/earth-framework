@@ -84,7 +84,7 @@ class Marker {
                 mAnimator.setDuration(300);
                 mAnimator.addUpdateListener(animation -> {
                     float currentValue = (float) animation.getAnimatedValue();
-                    logD("onAnimationUpdate: " + currentValue);
+//                    logD("onAnimationUpdate: " + currentValue);
                     PictureMarkerSymbol markerSymbol1 = (PictureMarkerSymbol) mGraphicWindow.getSymbol();
                     markerSymbol1.setOpacity(currentValue);
                 });
@@ -103,12 +103,12 @@ class Marker {
         mAnimator.setDuration(300);
         mAnimator.addUpdateListener(animation -> {
             float currentValue = (float) animation.getAnimatedValue();
-            logD("onAnimationUpdate: " + currentValue);
+//            logD("onAnimationUpdate: " + currentValue);
             PictureMarkerSymbol markerSymbol = (PictureMarkerSymbol) mGraphicWindow.getSymbol();
             markerSymbol.setOpacity(currentValue);
 
             if (currentValue <= 0) {
-                logD("onAnimationUpdate: finish");
+//                logD("onAnimationUpdate: finish");
                 EarthUtils.removeGraphic(mGraphicsOverlay, mGraphicPoint);
                 EarthUtils.removeGraphic(mGraphicsOverlay, mGraphicWindow);
             }
