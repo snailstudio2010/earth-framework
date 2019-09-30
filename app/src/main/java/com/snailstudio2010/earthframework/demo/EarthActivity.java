@@ -9,6 +9,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.widget.ImageView;
 
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationListener;
 import com.snailstudio2010.earthframework.EarthView;
 import com.snailstudio2010.earthframework.MarkerLayout;
 import com.snailstudio2010.earthframework.MarkerPoint;
@@ -23,7 +25,7 @@ import java.util.Set;
 /**
  * Created by xuqiqiang on 2019/08/12.
  */
-public class EarthActivity extends BaseActivity implements MarkerLayout.OnMarkerTapListener {
+public class EarthActivity extends BaseActivity implements MarkerLayout.OnMarkerTapListener, AMapLocationListener {
 
     private EarthView mEarthView;
     private MarkerAdapter mMarkerAdapter;
@@ -64,10 +66,16 @@ public class EarthActivity extends BaseActivity implements MarkerLayout.OnMarker
 
     @Override
     public void onMarkerTap(MarkerPoint hashPoint, Set<MarkerPoint> set) {
-        mEarthView.flyToMarker(hashPoint, set, true);
+//        mEarthView.flyToMarker(hashPoint, set, true);
+        mEarthView.startLocation(true, true, this);
     }
 
     @Override
     public void onMapStop() {
+    }
+
+    @Override
+    public void onLocationChanged(AMapLocation aMapLocation) {
+
     }
 }

@@ -1,15 +1,28 @@
 package com.snailstudio2010.earthframework;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
+import com.amap.api.location.AMapLocationListener;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.mapping.ArcGISScene;
 import com.esri.arcgisruntime.mapping.Basemap;
@@ -26,7 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class EarthView extends RelativeLayout implements GalleryView.OnGalleryListener {
+public class EarthView extends RelativeLayout implements GalleryView.OnGalleryListener, AMapLocationListener {
 
     private Context mContext;
     private ArcGISScene mScene;
@@ -41,7 +54,12 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
     private View mMask;
     private MarkerLayout mMarkerLayout;
     private GalleryView mGalleryView;
+    private AMapLocationClient locationClient;
     private Handler mHandler = new Handler(Looper.getMainLooper());
+
+    private boolean mLocationShowFlag;
+    private boolean mLocationFlyTo;
+    private AMapLocationListener mLocationListener;
 
     private List<EarthViewListener> mListeners = new ArrayList<>();
 
@@ -63,7 +81,6 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
         mMask = view.findViewById(R.id.mask);
         mGalleryView = view.findViewById(R.id.gallery_view);
         mGalleryView.setOnGalleryListener(this);
-//        setupMap();
     }
 
     public EarthView scene(Basemap.Type sceneType) {
@@ -170,7 +187,6 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
         return animationDuration;
     }
 
-
     public SceneView getSceneView() {
         return mSceneView;
     }
@@ -205,6 +221,91 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
         mGalleryView.hide();
         mMarkerLayout.removeSearchLocationGraphic();
         resetMap(null);
+    }
+
+    private void initAMapLocation() {
+        locationClient = new AMapLocationClient(mContext);
+        AMapLocationClientOption locationOption = getDefaultOption();
+        locationClient.setLocationOption(locationOption);
+        locationClient.setLocationListener(this);
+    }
+
+    private AMapLocationClientOption getDefaultOption() {
+        AMapLocationClientOption mOption = new AMapLocationClientOption();
+        mOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+        mOption.setGpsFirst(false);
+        mOption.setHttpTimeOut(30000);
+        mOption.setInterval(2000);
+        mOption.setNeedAddress(true);
+        mOption.setOnceLocation(true);
+        mOption.setOnceLocationLatest(false);
+        AMapLocationClientOption.setLocationProtocol(AMapLocationClientOption.AMapLocationProtocol.HTTP);
+        mOption.setSensorEnable(false);
+        mOption.setWifiScan(true);
+        mOption.setLocationCacheEnable(true);
+        mOption.setGeoLanguage(AMapLocationClientOption.GeoLanguage.DEFAULT);
+        return mOption;
+    }
+
+    public boolean startLocation(boolean showFlag, boolean flyTo, AMapLocationListener listener) {
+        int requestPermissionsCode = 2;
+        String[] requestPermissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+
+        if (!(ContextCompat.checkSelfPermission(mContext, requestPermissions[0]) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(mContext, requestPermissions[1]) == PackageManager.PERMISSION_GRANTED)) {
+            if (mContext instanceof Activity) {
+                ActivityCompat.requestPermissions((Activity) mContext, requestPermissions, requestPermissionsCode);
+            }
+            return false;
+        } else {
+            if (locationClient == null) {
+                initAMapLocation();
+            }
+            mLocationShowFlag = showFlag;
+            mLocationFlyTo = flyTo;
+            mLocationListener = listener;
+            locationClient.startLocation();
+        }
+        return true;
+    }
+
+    @Override
+    public void onLocationChanged(AMapLocation location) {
+        if (mLocationListener != null)
+            mLocationListener.onLocationChanged(location);
+        if (null != location) {
+//            mRootView.dismissProgress();
+
+            if (location.getErrorCode() == 0) {
+
+                if (mLocationFlyTo) {
+                    resetMap(() -> {
+                        double targetAltitude = Constants.mAltitudes[Constants.mAltitudes.length - 2];
+                        Point target = new Point(location.getLongitude(), location.getLatitude(), targetAltitude);
+                        EarthUtils.moveMap(mSceneView, target, calcDuration(targetAltitude), () -> {
+                            if (mLocationShowFlag) mMarkerLayout.createLocationGraphic(location);
+                        }, false);
+                    });
+                } else if (mLocationShowFlag) {
+                    mMarkerLayout.createLocationGraphic(location);
+                }
+
+//                Utils.mLocation = new Point(location.getLongitude(), location.getLatitude(), SpatialReferences.getWgs84());
+//                mRootView.onGetLocation(location, true);
+            } else {
+                Toast.makeText(mContext, location.getLocationDetail(), Toast.LENGTH_SHORT).show();
+                if (location.getErrorCode() == 12) {
+                    new AlertDialog.Builder(mContext)
+                            .setMessage("Would you mind to turn GPS on?")
+                            .setCancelable(false)
+                            .setPositiveButton(android.R.string.ok, (dialog, which)
+                                    -> mContext
+                                    .startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)))
+                            .setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel())
+                            .create().show();
+                }
+            }
+        }
     }
 
     private class EarthViewOnTouchListener extends DefaultSceneViewOnTouchListener {

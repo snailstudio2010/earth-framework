@@ -18,7 +18,6 @@ import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 
 import static com.snailstudio2010.earthframework.MarkerLayout.Z_INDEX_MARKER_POINT;
 import static com.snailstudio2010.earthframework.MarkerLayout.Z_INDEX_MARKER_WINDOW;
-import static com.snailstudio2010.earthframework.EarthUtils.logD;
 
 class Marker {
 
