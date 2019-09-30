@@ -5,26 +5,19 @@
 package com.snailstudio2010.earthframework.adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.snailstudio2010.earthframework.ImageUtils;
+import com.snailstudio2010.earthframework.ImageLoader;
 import com.snailstudio2010.earthframework.MarkerLayout;
 import com.snailstudio2010.earthframework.R;
 import com.snailstudio2010.earthframework.entity.ArticlePoint;
 import com.snailstudio2010.libutils.ArrayUtils;
 import com.snailstudio2010.libutils.DisplayUtils;
 
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.List;
 import java.util.Set;
 
@@ -35,12 +28,15 @@ import static com.snailstudio2010.earthframework.EarthUtils.logD;
  */
 public class MarkerAdapter extends MarkerLayout.Adapter<ArticlePoint, MarkerAdapter.ViewHolder> {
 
+    private ImageLoader mImageLoader;
+
     private Context context;
     private List<ArticlePoint> mList;
 
     public MarkerAdapter(Context context, List<ArticlePoint> list) {
         this.context = context;
         this.mList = list;
+        this.mImageLoader = new ImageLoader(context);
     }
 
     @NonNull
@@ -87,47 +83,10 @@ public class MarkerAdapter extends MarkerLayout.Adapter<ArticlePoint, MarkerAdap
     @Override
     public void onLoadAsync(ArticlePoint hashPoint, Runnable resolve) {
         logD("resource:" + hashPoint.photo);
-
         new Thread() {
             public void run() {
-
-//                try {
-//                    URL iconUrl = new URL(hashPoint.photo);
-//                    URLConnection conn = iconUrl.openConnection();
-//                    HttpURLConnection http = (HttpURLConnection) conn;
-//
-//                    int length = http.getContentLength();
-//
-//                    conn.connect();
-//                    // 获得图像的字符流
-//                    InputStream is = conn.getInputStream();
-//                    BufferedInputStream bis = new BufferedInputStream(is, length);
-//                    hashPoint.bitmap = BitmapFactory.decodeStream(bis);
-//                    bis.close();
-//                    is.close();// 关闭流
-//                }
-//                catch (Exception e) {
-//                    e.printStackTrace();
-//                } finally {
-//                    resolve.run();
-//                }
-
-
-
-
-
                 try {
-                    URL url = new URL(hashPoint.photo);
-                    String responseCode = url.openConnection().getHeaderField(0);
-                    logD("responseCode:" + responseCode);
-//                    if (responseCode.contains("200")) {
-                        Bitmap bitmap = BitmapFactory.decodeStream(url.openStream());
-                        if (!bitmap.isRecycled()) {
-                            hashPoint.bitmap = ImageUtils.centerCrop(bitmap);
-                        }
-//                    }
-
-//                    hashPoint.bitmap = BitmapFactory.decodeStream(url.openStream());
+                    hashPoint.bitmap = mImageLoader.getBitmap(hashPoint.photo);
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
@@ -135,7 +94,6 @@ public class MarkerAdapter extends MarkerLayout.Adapter<ArticlePoint, MarkerAdap
                 }
             }
         }.start();
-
     }
 
     class ViewHolder extends MarkerLayout.ViewHolder {
