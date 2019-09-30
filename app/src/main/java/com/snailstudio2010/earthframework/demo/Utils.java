@@ -4,14 +4,11 @@
  */
 package com.snailstudio2010.earthframework.demo;
 
-import com.esri.arcgisruntime.concurrent.ListenableFuture;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.mapping.view.Camera;
 import com.esri.arcgisruntime.mapping.view.SceneView;
 import com.snailstudio2010.earthframework.EarthUtils;
 import com.snailstudio2010.libutils.NotNull;
-
-import java.util.Random;
 
 /**
  * Created by xuqiqiang on 2019/08/19.

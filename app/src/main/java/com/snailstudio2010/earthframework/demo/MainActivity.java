@@ -7,7 +7,6 @@ package com.snailstudio2010.earthframework.demo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -25,8 +24,6 @@ import com.snailstudio2010.earthframework.MarkerPoint;
 import com.snailstudio2010.earthframework.adapter.MarkerAdapter;
 import com.snailstudio2010.earthframework.entity.ArticlePoint;
 import com.snailstudio2010.libutils.ArrayUtils;
-import com.snailstudio2010.libutils.ScreenUtils;
-import com.snailstudio2010.libutils.StatusBarUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +34,7 @@ import static com.snailstudio2010.earthframework.EarthUtils.logD;
 /**
  * Created by xuqiqiang on 2019/08/12.
  */
-public class MainActivity extends AppCompatActivity implements MarkerLayout.OnMarkerTapListener {
-    private static final String TAG = MainActivity.class.getSimpleName();
+public class MainActivity extends BaseActivity implements MarkerLayout.OnMarkerTapListener {
 
     private SceneView mSceneView;
     private View mMask;
@@ -49,12 +45,7 @@ public class MainActivity extends AppCompatActivity implements MarkerLayout.OnMa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ScreenUtils.initialize(this);
         setContentView(R.layout.activity_main);
-
-        StatusBarUtils.setRootViewFitsSystemWindows(this, false);
-        StatusBarUtils.setTranslucentStatus(this);
-        StatusBarUtils.setStatusBarDarkTheme(this, false);
 
         mSceneView = findViewById(R.id.sceneView);
         mMask = findViewById(R.id.mask);

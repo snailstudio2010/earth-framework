@@ -7,7 +7,6 @@ package com.snailstudio2010.earthframework.demo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 
 import com.snailstudio2010.earthframework.EarthView;
@@ -15,8 +14,6 @@ import com.snailstudio2010.earthframework.MarkerLayout;
 import com.snailstudio2010.earthframework.MarkerPoint;
 import com.snailstudio2010.earthframework.adapter.MarkerAdapter;
 import com.snailstudio2010.earthframework.entity.ArticlePoint;
-import com.snailstudio2010.libutils.ScreenUtils;
-import com.snailstudio2010.libutils.StatusBarUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +25,7 @@ import static com.snailstudio2010.earthframework.EarthUtils.logD;
 /**
  * Created by xuqiqiang on 2019/08/12.
  */
-public class EarthActivity extends AppCompatActivity implements MarkerLayout.OnMarkerTapListener {
-    private static final String TAG = EarthActivity.class.getSimpleName();
+public class EarthActivity extends BaseActivity implements MarkerLayout.OnMarkerTapListener {
 
     private EarthView mEarthView;
     private MarkerAdapter mMarkerAdapter;
@@ -38,12 +34,7 @@ public class EarthActivity extends AppCompatActivity implements MarkerLayout.OnM
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ScreenUtils.initialize(this);
         setContentView(R.layout.activity_earth);
-
-        StatusBarUtils.setRootViewFitsSystemWindows(this, false);
-        StatusBarUtils.setTranslucentStatus(this);
-        StatusBarUtils.setStatusBarDarkTheme(this, false);
 
         mEarthView = findViewById(R.id.earthView);
         mEarthView.init(this::onRefreshMarkers);
@@ -94,13 +85,11 @@ public class EarthActivity extends AppCompatActivity implements MarkerLayout.OnM
 
     @Override
     public void onMarkerTap(MarkerPoint hashPoint, Set<MarkerPoint> set) {
-
         logD("onMarkerTap:" + hashPoint);
         mEarthView.flyToMarker(hashPoint, set, true);
     }
 
     @Override
     public void onMapStop() {
-
     }
 }

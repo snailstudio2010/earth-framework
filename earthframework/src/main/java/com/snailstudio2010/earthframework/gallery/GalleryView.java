@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Handler;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -49,6 +50,7 @@ public class GalleryView extends RelativeLayout {
                 (int) DisplayUtils.dip2px(context, 278),
                 height));
 
+        this.setBackgroundColor(Color.TRANSPARENT);
         this.setGravity(Gravity.CENTER);
         this.setClipChildren(false);
         initView();
@@ -68,14 +70,13 @@ public class GalleryView extends RelativeLayout {
         vpGallery.setPageMargin(0);
 
         vpGallery.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
             }
 
             @Override
             public void onPageSelected(int position) {
-//                onSelectTab(position);
                 mAdapter.onPageSelected(position);
                 if (mOnGalleryListener != null)
                     mOnGalleryListener.onGalleryItemSelect(position, mList.get(position));
@@ -83,10 +84,8 @@ public class GalleryView extends RelativeLayout {
 
             @Override
             public void onPageScrollStateChanged(int state) {
-
             }
         });
-        vpGallery.setCurrentItem(2);
     }
 
     public void show(List<ArticlePoint> list) {
