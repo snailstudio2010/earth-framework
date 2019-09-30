@@ -90,25 +90,10 @@ public class MainActivity extends BaseActivity implements MarkerLayout.OnMarkerT
     }
 
     private void onRefreshMarkers() {
-
-        String[] infos = {
-                "福岛储存了多少污染水，竟然要排入海中",
-                "迪拜世博会的中国“硬实力”和“软实力”",
-                "无人机炸掉了沙特石油一半产能",
-                "世界上最美城堡的奇幻记忆",
-                "超级工程“中国天眼”牛在哪？",
-                "12000年历史的土耳其古镇即将被吞没",
-
-                "福岛储存了多少污染水，竟然要排入海中",
-                "迪拜世博会的中国“硬实力”和“软实力”",
-                "无人机炸掉了沙特石油一半产能",
-                "世界上最美城堡的奇幻记忆",
-                "超级工程“中国天眼”牛在哪？",
-                "12000年历史的土耳其古镇即将被吞没",
-        };
         List<ArticlePoint> list = new ArrayList<>();
-        for (String info : infos) {
-            list.add(new ArticlePoint(Math.random() * 180, Math.random() * 70, info, null));
+        for (String info : Constants.mInfos) {
+            list.add(new ArticlePoint(Math.random() * 180, Math.random() * 70,
+                    info, null, null));
         }
 
         if (mMarkerAdapter == null) {
@@ -131,14 +116,10 @@ public class MainActivity extends BaseActivity implements MarkerLayout.OnMarkerT
         }
         Point target = new Point(hashPoint.x, hashPoint.y, targetZ);
         EarthUtils.moveMap(mSceneView, target, Utils.calcDuration(targetZ));
-
-//        if (hashPoint instanceof ArticlePoint)
-//            mGalleryView.show(ArrayUtils.createList(((ArticlePoint) hashPoint).mArticleItem));
     }
 
     @Override
     public void onMapStop() {
-
     }
 
     class SceneViewOnTouchListener extends DefaultSceneViewOnTouchListener {

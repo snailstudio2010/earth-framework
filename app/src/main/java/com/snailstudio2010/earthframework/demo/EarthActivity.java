@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import static com.snailstudio2010.earthframework.EarthUtils.logD;
-
 /**
  * Created by xuqiqiang on 2019/08/12.
  */
@@ -48,31 +46,12 @@ public class EarthActivity extends BaseActivity implements MarkerLayout.OnMarker
     }
 
     private void onRefreshMarkers() {
-
-        String[] infos = {
-                "福岛储存了多少污染水，竟然要排入海中",
-                "迪拜世博会的中国“硬实力”和“软实力”",
-                "无人机炸掉了沙特石油一半产能",
-                "世界上最美城堡的奇幻记忆",
-                "超级工程“中国天眼”牛在哪？",
-                "12000年历史的土耳其古镇即将被吞没",
-
-                "福岛储存了多少污染水，竟然要排入海中",
-                "迪拜世博会的中国“硬实力”和“软实力”",
-                "无人机炸掉了沙特石油一半产能",
-                "世界上最美城堡的奇幻记忆",
-                "超级工程“中国天眼”牛在哪？",
-                "12000年历史的土耳其古镇即将被吞没",
-        };
-        String[] photos = {
-                null,
-                "http://earthlive-imgs.national-space.com/FjAvDfPQzBJUU4U1Tea7RUpR-Amk",
-                "http://earthlive-imgs.national-space.com/09-19/WGAvzrlHcEnq6Qxd0RvVA.png",
-                "http://cdn.national-space.com/09-17/pViTphZXyw9fpZsLBQtFi.png",
-        };
         List<ArticlePoint> list = new ArrayList<>();
-        for (String info : infos) {
-            list.add(new ArticlePoint(Math.random() * 180, Math.random() * 70, info, photos[new Random().nextInt(photos.length)]));
+        for (String info : Constants.mInfos) {
+            list.add(new ArticlePoint(Math.random() * 180, Math.random() * 70,
+                    info,
+                    Constants.mPhotos[new Random().nextInt(Constants.mPhotos.length)],
+                    Constants.mLocations[new Random().nextInt(Constants.mLocations.length)]));
         }
 
         if (mMarkerAdapter == null) {
@@ -85,7 +64,6 @@ public class EarthActivity extends BaseActivity implements MarkerLayout.OnMarker
 
     @Override
     public void onMarkerTap(MarkerPoint hashPoint, Set<MarkerPoint> set) {
-        logD("onMarkerTap:" + hashPoint);
         mEarthView.flyToMarker(hashPoint, set, true);
     }
 

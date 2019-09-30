@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Vibrator;
+import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
@@ -57,18 +58,18 @@ public class GalleryAdapter extends PagerAdapter {
     }
 
     @Override
-    public boolean isViewFromObject(@NotNull View view, @NotNull Object object) {
+    public boolean isViewFromObject(@NonNull @NotNull View view, @NonNull Object object) {
         return view == object;
     }
 
     @Override
-    public void destroyItem(@NotNull ViewGroup container, int position, @NotNull Object object) {
+    public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         container.removeView((View) object);
     }
 
-    @NotNull
+    @NonNull
     @Override
-    public Object instantiateItem(@NotNull ViewGroup container, final int position) {
+    public Object instantiateItem(@NonNull ViewGroup container, final int position) {
         ArticlePoint item = mList.get(position);
         View view = mInflater.inflate(R.layout.gallery_item, null);
         View rlContainer = view.findViewById(R.id.rl_container);
@@ -78,8 +79,8 @@ public class GalleryAdapter extends PagerAdapter {
         });
         TextView tvTitle = view.findViewById(R.id.tv_title);
         tvTitle.setText(item.info);
-//        TextView tvLocation = view.findViewById(R.id.tv_location);
-//        tvLocation.setText(item.getFields().getLocation());
+        TextView tvLocation = view.findViewById(R.id.tv_location);
+        tvLocation.setText(item.location);
         ImageView ivClose = view.findViewById(R.id.iv_close);
         ivClose.setVisibility(position == mVp.getCurrentItem() ? View.VISIBLE : View.GONE);
         ivClose.setOnClickListener(v -> {
