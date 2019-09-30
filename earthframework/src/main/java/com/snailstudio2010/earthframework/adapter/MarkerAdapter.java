@@ -2,7 +2,7 @@
  * Copyright (C) 2019 xuqiqiang. All rights reserved.
  * LiveGuanghan
  */
-package com.snailstudio2010.earthframework.demo;
+package com.snailstudio2010.earthframework.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -11,6 +11,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.snailstudio2010.earthframework.MarkerLayout;
+import com.snailstudio2010.earthframework.R;
+import com.snailstudio2010.earthframework.entity.ArticlePoint;
 import com.snailstudio2010.libutils.ArrayUtils;
 import com.snailstudio2010.libutils.DisplayUtils;
 

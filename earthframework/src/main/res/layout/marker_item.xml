@@ -26,7 +26,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:scaleType="centerCrop"
-                android:src="@mipmap/home_article" />
+                android:src="@mipmap/marker_article" />
 
             <TextView
                 android:id="@+id/tv_info"
@@ -61,7 +61,7 @@
         android:layout_width="15dp"
         android:layout_height="15dp"
         android:layout_alignParentEnd="true"
-        android:src="@mipmap/home_more_icon"
+        android:src="@mipmap/marker_more"
         android:visibility="invisible" />
 
 </RelativeLayout>

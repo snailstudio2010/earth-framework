@@ -22,6 +22,8 @@ import com.esri.arcgisruntime.mapping.view.SceneView;
 import com.snailstudio2010.earthframework.EarthUtils;
 import com.snailstudio2010.earthframework.MarkerLayout;
 import com.snailstudio2010.earthframework.MarkerPoint;
+import com.snailstudio2010.earthframework.adapter.MarkerAdapter;
+import com.snailstudio2010.earthframework.entity.ArticlePoint;
 import com.snailstudio2010.libutils.ArrayUtils;
 import com.snailstudio2010.libutils.ScreenUtils;
 import com.snailstudio2010.libutils.StatusBarUtils;
@@ -115,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements MarkerLayout.OnMa
         };
         List<ArticlePoint> list = new ArrayList<>();
         for (String info : infos) {
-            list.add(new ArticlePoint(Math.random() * 180, Math.random() * 70, info));
+            list.add(new ArticlePoint(Math.random() * 180, Math.random() * 70, info, null));
         }
 
         if (mMarkerAdapter == null) {
