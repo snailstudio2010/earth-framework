@@ -597,6 +597,10 @@ public class MarkerLayout implements SensorEventListener {
         }
 
         @SuppressWarnings("all")
+        protected void onRenderFinish(P point) {
+        }
+
+        @SuppressWarnings("all")
         public final void notifyDataSetChanged() {
             isClear = false;
             mMarkerLayout.initMarkers();
@@ -648,6 +652,7 @@ public class MarkerLayout implements SensorEventListener {
             markerSymbol.setOffsetX(holder.getOffsetX(direct));
             markerSymbol.setOffsetY(holder.getOffsetY(direct));
 
+            onRenderFinish(point);
             logD("onCreateViewHolder1:" + (System.currentTimeMillis() - start));
             return markerSymbol;
         }

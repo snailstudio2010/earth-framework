@@ -49,7 +49,9 @@ public class MarkerAdapter extends MarkerLayout.Adapter<ArticlePoint, MarkerAdap
     public void onBindViewHolder(@NonNull ViewHolder holder, ArticlePoint point, Set<ArticlePoint> set) {
         if (point != null) {
             holder.tvInfo.setText(point.info);
-            if (point.bitmap != null) holder.ivPhoto.setImageBitmap(point.bitmap);
+            if (point.bitmap != null && !point.bitmap.isRecycled()) {
+                holder.ivPhoto.setImageBitmap(point.bitmap);
+            }
         }
 
         if (!ArrayUtils.isEmpty(set)) {
