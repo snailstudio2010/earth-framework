@@ -19,6 +19,7 @@ import com.esri.arcgisruntime.mapping.Basemap;
 import com.esri.arcgisruntime.mapping.view.Camera;
 import com.esri.arcgisruntime.mapping.view.DefaultSceneViewOnTouchListener;
 import com.esri.arcgisruntime.mapping.view.SceneView;
+import com.snailstudio2010.earthframework.EarthUtils;
 import com.snailstudio2010.earthframework.MarkerLayout;
 import com.snailstudio2010.earthframework.MarkerPoint;
 import com.snailstudio2010.libutils.ArrayUtils;
@@ -29,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.snailstudio2010.earthframework.Utils.logD;
+import static com.snailstudio2010.earthframework.EarthUtils.logD;
 
 /**
  * Created by xuqiqiang on 2019/08/12.
@@ -136,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements MarkerLayout.OnMa
             targetZ = Utils.getTargetAltitude(point);
         }
         Point target = new Point(hashPoint.x, hashPoint.y, targetZ);
-        Utils.moveMap(mSceneView, target, Utils.calcDuration(targetZ));
+        EarthUtils.moveMap(mSceneView, target, Utils.calcDuration(targetZ));
 
 //        if (hashPoint instanceof ArticlePoint)
 //            mGalleryView.show(ArrayUtils.createList(((ArticlePoint) hashPoint).mArticleItem));

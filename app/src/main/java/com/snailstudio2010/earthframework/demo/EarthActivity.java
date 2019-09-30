@@ -8,21 +8,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
-import android.view.View;
 import android.widget.ImageView;
 
-import com.esri.arcgisruntime.geometry.Point;
-import com.esri.arcgisruntime.mapping.ArcGISScene;
-import com.esri.arcgisruntime.mapping.Basemap;
-import com.esri.arcgisruntime.mapping.view.Camera;
-import com.esri.arcgisruntime.mapping.view.DefaultSceneViewOnTouchListener;
-import com.esri.arcgisruntime.mapping.view.SceneView;
 import com.snailstudio2010.earthframework.EarthView;
 import com.snailstudio2010.earthframework.MarkerLayout;
 import com.snailstudio2010.earthframework.MarkerPoint;
-import com.snailstudio2010.libutils.ArrayUtils;
 import com.snailstudio2010.libutils.ScreenUtils;
 import com.snailstudio2010.libutils.StatusBarUtils;
 
@@ -30,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.snailstudio2010.earthframework.Utils.logD;
+import static com.snailstudio2010.earthframework.EarthUtils.logD;
 
 /**
  * Created by xuqiqiang on 2019/08/12.

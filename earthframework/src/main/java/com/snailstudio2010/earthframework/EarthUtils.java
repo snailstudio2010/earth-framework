@@ -17,10 +17,10 @@ import com.snailstudio2010.libutils.NotNull;
 /**
  * Created by xuqiqiang on 2019/08/19.
  */
-public final class Utils {
+public final class EarthUtils {
     public static final String TAG = "earth-framework";
 
-    private Utils() {
+    private EarthUtils() {
     }
 
     public static void addGraphic(GraphicsOverlay graphicsOverlay, Graphic graphic) {

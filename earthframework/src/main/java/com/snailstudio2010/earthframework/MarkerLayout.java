@@ -52,8 +52,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static com.snailstudio2010.earthframework.Utils.logD;
-import static com.snailstudio2010.earthframework.Utils.logE;
+import static com.snailstudio2010.earthframework.EarthUtils.logD;
+import static com.snailstudio2010.earthframework.EarthUtils.logE;
 
 public class MarkerLayout implements SensorEventListener {
 
@@ -121,7 +121,7 @@ public class MarkerLayout implements SensorEventListener {
                         if (direct != marker.direct && !ArrayUtils.isEmpty(map)) {
                             Graphic graphic = createMarkerGraphic(
                                     hashPoint, direct, map.get(hashPoint));
-                            Utils.removeGraphic(mGraphicsOverlay, marker.getWindow());
+                            EarthUtils.removeGraphic(mGraphicsOverlay, marker.getWindow());
                             marker.setWindow(graphic, direct);
                         }
                     }
@@ -184,7 +184,7 @@ public class MarkerLayout implements SensorEventListener {
         MarkerSymbol markerSymbol = createMarker(hashPoint, direct, set);
         Graphic pinStarBlueGraphic = new Graphic(new Point(hashPoint.x, hashPoint.y, SpatialReferences.getWgs84()), markerSymbol);
         pinStarBlueGraphic.setZIndex(Z_INDEX_MARKER_WINDOW);
-        Utils.addGraphic(mGraphicsOverlay, pinStarBlueGraphic);
+        EarthUtils.addGraphic(mGraphicsOverlay, pinStarBlueGraphic);
         return pinStarBlueGraphic;
     }
 
@@ -238,7 +238,7 @@ public class MarkerLayout implements SensorEventListener {
     @SuppressWarnings("unused")
     public void createLocationPointGraphics(Location location) {
         if (mLocationPointGraphic != null) {
-            Utils.removeGraphic(mGraphicsOverlay, mLocationPointGraphic);
+            EarthUtils.removeGraphic(mGraphicsOverlay, mLocationPointGraphic);
         }
         Point point = new Point(location.getLongitude(),
                 location.getLatitude(), SpatialReferences.getWgs84());
@@ -247,7 +247,7 @@ public class MarkerLayout implements SensorEventListener {
         pointSymbol.setOutline(new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.WHITE, 2.0f));
         mLocationPointGraphic = new Graphic(point, pointSymbol);
 
-        Utils.addGraphic(mGraphicsOverlay, mLocationPointGraphic);
+        EarthUtils.addGraphic(mGraphicsOverlay, mLocationPointGraphic);
     }
 
     public void createLocationGraphic(Location location) {
@@ -257,7 +257,7 @@ public class MarkerLayout implements SensorEventListener {
     @SuppressWarnings("deprecation")
     private void createLocationGraphic(double longitude, double latitude) {
         if (mLocationGraphic != null) {
-            Utils.removeGraphic(mGraphicsOverlay, mLocationGraphic);
+            EarthUtils.removeGraphic(mGraphicsOverlay, mLocationGraphic);
         } else {
             if (USE_COMPASS) {
                 SensorManager manager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
@@ -270,12 +270,12 @@ public class MarkerLayout implements SensorEventListener {
         mLocationMarkerSymbol = new PictureMarkerSymbol(new BitmapDrawable(mBitmapLocation));
         mLocationGraphic = new Graphic(point, mLocationMarkerSymbol);
         mLocationGraphic.setZIndex(Z_INDEX_LOCATION);
-        Utils.addGraphic(mGraphicsOverlay, mLocationGraphic);
+        EarthUtils.addGraphic(mGraphicsOverlay, mLocationGraphic);
     }
 
     public void removeLocationGraphic() {
         if (mLocationGraphic != null) {
-            Utils.removeGraphic(mGraphicsOverlay, mLocationGraphic);
+            EarthUtils.removeGraphic(mGraphicsOverlay, mLocationGraphic);
             mLocationGraphic = null;
         }
     }
@@ -283,17 +283,17 @@ public class MarkerLayout implements SensorEventListener {
     @SuppressWarnings("deprecation")
     public void createSearchLocationGraphic(double longitude, double latitude) {
         if (mSearchLocationGraphic != null) {
-            Utils.removeGraphic(mGraphicsOverlay, mSearchLocationGraphic);
+            EarthUtils.removeGraphic(mGraphicsOverlay, mSearchLocationGraphic);
         }
         Point point = new Point(longitude, latitude, SpatialReferences.getWgs84());
         mSearchLocationGraphic = new Graphic(point, new PictureMarkerSymbol(new BitmapDrawable(mBitmapSearchLocation)));
         mSearchLocationGraphic.setZIndex(Z_INDEX_SEARCH_POINT);
-        Utils.addGraphic(mGraphicsOverlay, mSearchLocationGraphic);
+        EarthUtils.addGraphic(mGraphicsOverlay, mSearchLocationGraphic);
     }
 
     public void removeSearchLocationGraphic() {
         if (mSearchLocationGraphic != null) {
-            Utils.removeGraphic(mGraphicsOverlay, mSearchLocationGraphic);
+            EarthUtils.removeGraphic(mGraphicsOverlay, mSearchLocationGraphic);
             mSearchLocationGraphic = null;
         }
     }
@@ -526,7 +526,7 @@ public class MarkerLayout implements SensorEventListener {
         Polyline polyline = new Polyline(polylinePoints);
         SimpleLineSymbol polylineSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.DASH, Color.RED, 2.0f);
         Graphic polylineGraphic = new Graphic(polyline, polylineSymbol);
-        Utils.addGraphic(mGraphicsOverlay, polylineGraphic);
+        EarthUtils.addGraphic(mGraphicsOverlay, polylineGraphic);
     }
 
     public boolean onSingleTap(MotionEvent e) {

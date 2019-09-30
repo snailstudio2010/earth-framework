@@ -129,16 +129,16 @@ public class EarthView extends RelativeLayout {
 
         double targetZ = Constants.mAltitudes[Constants.mAltitudes.length - 1];
         if (!ArrayUtils.isEmpty(set)) {
-            targetZ = Utils.getTargetAltitude(point);
+            targetZ = EarthUtils.getTargetAltitude(point);
         }
         Point target = new Point(hashPoint.x, hashPoint.y, targetZ);
-        Utils.moveMap(mSceneView, target, calcDuration(targetZ));
+        EarthUtils.moveMap(mSceneView, target, calcDuration(targetZ));
     }
 
     public void resetMap(Runnable onComplete) {
         Camera camera = new Camera(mLatitude, mLongitude, mAltitude,
                 mHeading, mPitch, mRoll);
-        Utils.moveMap(mSceneView, camera, calcDuration(mSceneView), onComplete, false);
+        EarthUtils.moveMap(mSceneView, camera, calcDuration(mSceneView), onComplete, false);
     }
 
     private float calcDuration(@NotNull SceneView sceneView) {

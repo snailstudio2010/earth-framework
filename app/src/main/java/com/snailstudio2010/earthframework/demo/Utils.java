@@ -8,6 +8,7 @@ import com.esri.arcgisruntime.concurrent.ListenableFuture;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.mapping.view.Camera;
 import com.esri.arcgisruntime.mapping.view.SceneView;
+import com.snailstudio2010.earthframework.EarthUtils;
 import com.snailstudio2010.libutils.NotNull;
 
 import java.util.Random;
@@ -35,37 +36,7 @@ public final class Utils {
     public static void resetMap(SceneView sceneView, Runnable runnable) {
         Camera camera = new Camera(Constants.mLatitude, Constants.mLongitude, Constants.mAltitude,
                 Constants.mHeading, Constants.mPitch, Constants.mRoll);
-        moveMap(sceneView, camera, Utils.calcDuration(sceneView), runnable, false);
-    }
-
-    public static void moveMap(SceneView sceneView, Camera camera, float animationDuration) {
-        moveMap(sceneView, camera, animationDuration, null, false);
-    }
-
-    public static void moveMap(SceneView sceneView, Camera camera, float animationDuration, Runnable runnable, boolean strict) {
-
-        ListenableFuture<Boolean> listenableFuture = sceneView.setViewpointCameraAsync(
-                camera, animationDuration);
-        if (runnable != null) {
-            listenableFuture.addDoneListener(() -> {
-                if (!strict) runnable.run();
-                else {
-                    Point point = sceneView.getCurrentViewpointCamera().getLocation();
-                    if (point.getZ() < camera.getLocation().getZ() + 100 && point.getZ() > camera.getLocation().getZ() - 100) {
-                        runnable.run();
-                    }
-                }
-            });
-        }
-    }
-
-    public static void moveMap(SceneView sceneView, Point target, float animationDuration) {
-        moveMap(sceneView, target, animationDuration, null, false);
-    }
-
-    public static void moveMap(SceneView sceneView, Point target, float animationDuration, Runnable runnable, boolean strict) {
-        Camera camera = sceneView.getCurrentViewpointCamera();
-        moveMap(sceneView, camera.moveTo(target), animationDuration, runnable, strict);
+        EarthUtils.moveMap(sceneView, camera, Utils.calcDuration(sceneView), runnable, false);
     }
 
     public static double getTargetAltitude(Point point) {

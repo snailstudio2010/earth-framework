@@ -18,7 +18,7 @@ import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 
 import static com.snailstudio2010.earthframework.MarkerLayout.Z_INDEX_MARKER_POINT;
 import static com.snailstudio2010.earthframework.MarkerLayout.Z_INDEX_MARKER_WINDOW;
-import static com.snailstudio2010.earthframework.Utils.logD;
+import static com.snailstudio2010.earthframework.EarthUtils.logD;
 
 class Marker {
 
@@ -39,8 +39,8 @@ class Marker {
         mGraphicWindow = new Graphic(p);
         mGraphicWindow.setZIndex(Z_INDEX_MARKER_WINDOW);
 
-        Utils.addGraphic(mGraphicsOverlay, mGraphicPoint);
-        Utils.addGraphic(mGraphicsOverlay, mGraphicWindow);
+        EarthUtils.addGraphic(mGraphicsOverlay, mGraphicPoint);
+        EarthUtils.addGraphic(mGraphicsOverlay, mGraphicWindow);
 
         SimpleMarkerSymbol pointSymbol = new SimpleMarkerSymbol(
                 SimpleMarkerSymbol.Style.CIRCLE, 0xFF779BF1, 10.0f);
@@ -70,10 +70,10 @@ class Marker {
 
         mGraphicWindow = new Graphic(mPoint, markerSymbol);
         mGraphicWindow.setZIndex(Z_INDEX_MARKER_WINDOW);
-        Utils.addGraphic(mGraphicsOverlay, mGraphicWindow);
+        EarthUtils.addGraphic(mGraphicsOverlay, mGraphicWindow);
 
         if (lastWindow.getSymbol() == null) {
-            Utils.removeGraphic(mGraphicsOverlay, lastWindow);
+            EarthUtils.removeGraphic(mGraphicsOverlay, lastWindow);
             markerSymbol.setOpacity(0);
             mHandler.post(() -> {
 
@@ -91,7 +91,7 @@ class Marker {
                 mAnimator.start();
             });
         } else {
-            mHandler.postDelayed(() -> Utils.removeGraphic(mGraphicsOverlay, lastWindow), 70);
+            mHandler.postDelayed(() -> EarthUtils.removeGraphic(mGraphicsOverlay, lastWindow), 70);
         }
     }
 
@@ -109,8 +109,8 @@ class Marker {
 
             if (currentValue <= 0) {
                 logD("onAnimationUpdate: finish");
-                Utils.removeGraphic(mGraphicsOverlay, mGraphicPoint);
-                Utils.removeGraphic(mGraphicsOverlay, mGraphicWindow);
+                EarthUtils.removeGraphic(mGraphicsOverlay, mGraphicPoint);
+                EarthUtils.removeGraphic(mGraphicsOverlay, mGraphicWindow);
             }
         });
         mAnimator.start();
