@@ -96,10 +96,7 @@ public class EarthActivity extends AppCompatActivity implements MarkerLayout.OnM
     public void onMarkerTap(MarkerPoint hashPoint, Set<MarkerPoint> set) {
 
         logD("onMarkerTap:" + hashPoint);
-        mEarthView.flyToMarker(hashPoint, set);
-
-//        if (hashPoint instanceof ArticlePoint)
-//            mGalleryView.show(ArrayUtils.createList(((ArticlePoint) hashPoint).mArticleItem));
+        mEarthView.flyToMarker(hashPoint, set, true);
     }
 
     @Override

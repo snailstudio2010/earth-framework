@@ -10,6 +10,14 @@
         android:layout_height="match_parent"
         android:layout_marginBottom="-25dp" />
 
+    <com.snailstudio2010.earthframework.gallery.GalleryView
+        android:id="@+id/gallery_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:translationY="268dp"
+        android:visibility="invisible" />
+
     <com.snailstudio2010.earthframework.Mask
         android:id="@+id/mask"
         android:layout_width="match_parent"

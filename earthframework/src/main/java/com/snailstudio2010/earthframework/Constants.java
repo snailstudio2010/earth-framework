@@ -16,6 +16,8 @@ public interface Constants {
     double mPitch = 0.0;
     double mRoll = 0.0;
 
+    float mFlyToPeriod = 1f;
+
     double[] mAltitudes = {
             5000000, // 国家
             500000, // 省

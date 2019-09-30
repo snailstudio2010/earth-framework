@@ -16,6 +16,8 @@ import com.esri.arcgisruntime.mapping.Basemap;
 import com.esri.arcgisruntime.mapping.view.Camera;
 import com.esri.arcgisruntime.mapping.view.DefaultSceneViewOnTouchListener;
 import com.esri.arcgisruntime.mapping.view.SceneView;
+import com.snailstudio2010.earthframework.entity.ArticlePoint;
+import com.snailstudio2010.earthframework.gallery.GalleryView;
 import com.snailstudio2010.earthframework.listener.EarthViewListener;
 import com.snailstudio2010.libutils.ArrayUtils;
 import com.snailstudio2010.libutils.NotNull;
@@ -24,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class EarthView extends RelativeLayout {
+public class EarthView extends RelativeLayout implements GalleryView.OnGalleryListener {
 
     private Context mContext;
     private ArcGISScene mScene;
@@ -38,6 +40,7 @@ public class EarthView extends RelativeLayout {
     private SceneView mSceneView;
     private View mMask;
     private MarkerLayout mMarkerLayout;
+    private GalleryView mGalleryView;
     private Handler mHandler = new Handler(Looper.getMainLooper());
 
     private List<EarthViewListener> mListeners = new ArrayList<>();
@@ -58,6 +61,8 @@ public class EarthView extends RelativeLayout {
 
         mSceneView = view.findViewById(R.id.sceneView);
         mMask = view.findViewById(R.id.mask);
+        mGalleryView = view.findViewById(R.id.gallery_view);
+        mGalleryView.setOnGalleryListener(this);
 //        setupMap();
     }
 
@@ -128,7 +133,7 @@ public class EarthView extends RelativeLayout {
         mMarkerLayout.setAdapter(adapter);
     }
 
-    public void flyToMarker(MarkerPoint hashPoint, Set<MarkerPoint> set) {
+    public void flyToMarker(MarkerPoint hashPoint, Set<MarkerPoint> set, boolean showInfo) {
         Point point = mSceneView.getCurrentViewpointCamera().getLocation();
 
         double targetZ = Constants.mAltitudes[Constants.mAltitudes.length - 1];
@@ -137,6 +142,11 @@ public class EarthView extends RelativeLayout {
         }
         Point target = new Point(hashPoint.x, hashPoint.y, targetZ);
         EarthUtils.moveMap(mSceneView, target, calcDuration(targetZ));
+
+        if (showInfo) {
+            mGalleryView.show((List<ArticlePoint>) new ArrayList(set));
+        }
+
     }
 
     public void resetMap(Runnable onComplete) {
@@ -173,6 +183,23 @@ public class EarthView extends RelativeLayout {
 
     public void removeAllListener() {
         mListeners.clear();
+    }
+
+    @Override
+    public void onGalleryItemSelect(int position, ArticlePoint articleItem) {
+        mMarkerLayout.createSearchLocationGraphic(articleItem.x, articleItem.y);
+        Point target = new Point(articleItem.x, articleItem.y, 600000);
+        EarthUtils.moveMap(mSceneView, target, Constants.mFlyToPeriod);
+    }
+
+    @Override
+    public void onGalleryItemClick(int position, ArticlePoint articleItem) {
+    }
+
+    @Override
+    public void onGalleryClose() {
+        mGalleryView.hide();
+        resetMap(null);
     }
 
     private class EarthViewOnTouchListener extends DefaultSceneViewOnTouchListener {
