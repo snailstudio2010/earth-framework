@@ -38,8 +38,12 @@ public final class Utils {
         moveMap(sceneView, camera, Utils.calcDuration(sceneView), runnable, false);
     }
 
+    public static void moveMap(SceneView sceneView, Camera camera, float animationDuration) {
+        moveMap(sceneView, camera, animationDuration, null, false);
+    }
+
     public static void moveMap(SceneView sceneView, Camera camera, float animationDuration, Runnable runnable, boolean strict) {
-//        this.camera = camera;
+
         ListenableFuture<Boolean> listenableFuture = sceneView.setViewpointCameraAsync(
                 camera, animationDuration);
         if (runnable != null) {
@@ -61,19 +65,7 @@ public final class Utils {
 
     public static void moveMap(SceneView sceneView, Point target, float animationDuration, Runnable runnable, boolean strict) {
         Camera camera = sceneView.getCurrentViewpointCamera();
-        ListenableFuture<Boolean> listenableFuture = sceneView.setViewpointCameraAsync(
-                camera.moveTo(target), animationDuration);
-        if (runnable != null) {
-            listenableFuture.addDoneListener(() -> {
-                if (!strict) runnable.run();
-                else {
-                    Point point = sceneView.getCurrentViewpointCamera().getLocation();
-                    if (point.getZ() < target.getZ() + 100 && point.getZ() > target.getZ() - 100) {
-                        runnable.run();
-                    }
-                }
-            });
-        }
+        moveMap(sceneView, camera.moveTo(target), animationDuration, runnable, strict);
     }
 
     public static double getTargetAltitude(Point point) {

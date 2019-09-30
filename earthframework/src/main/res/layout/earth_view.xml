@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+    <com.esri.arcgisruntime.mapping.view.SceneView
+        android:id="@+id/sceneView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="-25dp" />
+
+    <com.snailstudio2010.earthframework.Mask
+        android:id="@+id/mask"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</RelativeLayout>
