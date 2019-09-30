@@ -16,11 +16,13 @@ import com.esri.arcgisruntime.mapping.Basemap;
 import com.esri.arcgisruntime.mapping.view.Camera;
 import com.esri.arcgisruntime.mapping.view.DefaultSceneViewOnTouchListener;
 import com.esri.arcgisruntime.mapping.view.SceneView;
+import com.snailstudio2010.earthframework.listener.EarthViewListener;
 import com.snailstudio2010.libutils.ArrayUtils;
 import com.snailstudio2010.libutils.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
-
 
 public class EarthView extends RelativeLayout {
 
@@ -37,6 +39,8 @@ public class EarthView extends RelativeLayout {
     private View mMask;
     private MarkerLayout mMarkerLayout;
     private Handler mHandler = new Handler(Looper.getMainLooper());
+
+    private List<EarthViewListener> mListeners = new ArrayList<>();
 
     public EarthView(Context context) {
         this(context, null, 0);
@@ -107,7 +111,7 @@ public class EarthView extends RelativeLayout {
         mSceneView.setScene(mScene);
         mSceneView.setViewpointCamera(camera);
         mMarkerLayout = new MarkerLayout(mContext, mSceneView);
-        mSceneView.setOnTouchListener(new SceneViewOnTouchListener(mSceneView));
+        mSceneView.setOnTouchListener(new EarthViewOnTouchListener(mSceneView));
         mScene.addDoneLoadingListener(() ->
                 mHandler.postDelayed(() -> {
                     mMask.setVisibility(View.GONE);
@@ -153,9 +157,27 @@ public class EarthView extends RelativeLayout {
         return animationDuration;
     }
 
-    private class SceneViewOnTouchListener extends DefaultSceneViewOnTouchListener {
 
-        public SceneViewOnTouchListener(SceneView sceneView) {
+    public SceneView getSceneView() {
+        return mSceneView;
+    }
+
+    public void addListener(EarthViewListener listener) {
+        if (!mListeners.contains(listener))
+            mListeners.add(listener);
+    }
+
+    public void removeListener(EarthViewListener listener) {
+        mListeners.remove(listener);
+    }
+
+    public void removeAllListener() {
+        mListeners.clear();
+    }
+
+    private class EarthViewOnTouchListener extends DefaultSceneViewOnTouchListener {
+
+        public EarthViewOnTouchListener(SceneView sceneView) {
             super(sceneView);
         }
 
@@ -163,6 +185,9 @@ public class EarthView extends RelativeLayout {
         public boolean onTouch(View view, MotionEvent motionEvent) {
             if (mMarkerLayout != null)
                 mMarkerLayout.onTouch(motionEvent);
+            for (EarthViewListener listener : mListeners) {
+                listener.onTouch(view, motionEvent);
+            }
             return super.onTouch(view, motionEvent);
         }
 
@@ -170,19 +195,115 @@ public class EarthView extends RelativeLayout {
         public boolean onSingleTapConfirmed(MotionEvent e) {
             if (mMarkerLayout != null && mMarkerLayout.onSingleTap(e))
                 return super.onSingleTapConfirmed(e);
+            for (EarthViewListener listener : mListeners) {
+                listener.onSingleTapConfirmed(e);
+            }
             return super.onSingleTapConfirmed(e);
+        }
+
+        @Override
+        public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
+            for (EarthViewListener listener : mListeners) {
+                listener.onScale(scaleGestureDetector);
+            }
+            return super.onScale(scaleGestureDetector);
         }
 
         @Override
         public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
             if (mMarkerLayout != null)
                 mMarkerLayout.onScaleEnd();
+            for (EarthViewListener listener : mListeners) {
+                listener.onScaleEnd(scaleGestureDetector);
+            }
             super.onScaleEnd(scaleGestureDetector);
         }
 
         @Override
         public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
-            return true;
+            for (EarthViewListener listener : mListeners) {
+                listener.onScaleBegin(scaleGestureDetector);
+            }
+            return super.onScaleBegin(scaleGestureDetector);
         }
+
+
+        public boolean onMultiPointerTap(MotionEvent motionEvent) {
+            for (EarthViewListener listener : mListeners) {
+                listener.onMultiPointerTap(motionEvent);
+            }
+            return super.onMultiPointerTap(motionEvent);
+        }
+
+        public boolean onDoubleTouchDrag(MotionEvent motionEvent) {
+            for (EarthViewListener listener : mListeners) {
+                listener.onDoubleTouchDrag(motionEvent);
+            }
+            return super.onDoubleTouchDrag(motionEvent);
+        }
+
+        public boolean onSinglePointerDown(MotionEvent motionEvent) {
+            for (EarthViewListener listener : mListeners) {
+                listener.onSinglePointerDown(motionEvent);
+            }
+            return super.onSinglePointerDown(motionEvent);
+        }
+
+        public boolean onSinglePointerUp(MotionEvent motionEvent) {
+            for (EarthViewListener listener : mListeners) {
+                listener.onSinglePointerUp(motionEvent);
+            }
+            return super.onSinglePointerUp(motionEvent);
+        }
+
+        public boolean onTwoPointerPitch(MotionEvent motionEvent, double pitchDelta) {
+            for (EarthViewListener listener : mListeners) {
+                listener.onTwoPointerPitch(motionEvent, pitchDelta);
+            }
+            return super.onTwoPointerPitch(motionEvent, pitchDelta);
+        }
+
+        public boolean onTwoPointerRotate(MotionEvent motionEvent, double rotationDelta) {
+            for (EarthViewListener listener : mListeners) {
+                listener.onTwoPointerRotate(motionEvent, rotationDelta);
+            }
+            return super.onTwoPointerRotate(motionEvent, rotationDelta);
+        }
+
+        public boolean onDoubleTap(MotionEvent motionEvent) {
+            for (EarthViewListener listener : mListeners) {
+                listener.onDoubleTap(motionEvent);
+            }
+            return super.onDoubleTap(motionEvent);
+        }
+
+        public boolean onSingleTapUp(MotionEvent motionEvent) {
+            for (EarthViewListener listener : mListeners) {
+                listener.onSingleTapUp(motionEvent);
+            }
+            return super.onSingleTapUp(motionEvent);
+        }
+
+        public boolean onScroll(MotionEvent motionEventFrom, MotionEvent motionEventTo, float distanceX, float distanceY) {
+            for (EarthViewListener listener : mListeners) {
+                listener.onScroll(motionEventFrom, motionEventTo, distanceX, distanceY);
+            }
+            return super.onScroll(motionEventFrom, motionEventTo, distanceX, distanceY);
+        }
+
+        public void onLongPress(MotionEvent motionEvent) {
+            for (EarthViewListener listener : mListeners) {
+                listener.onLongPress(motionEvent);
+            }
+            super.onLongPress(motionEvent);
+        }
+
+        public boolean onFling() {
+            for (EarthViewListener listener : mListeners) {
+                listener.onFling();
+            }
+            return super.onFling();
+        }
+
     }
 }
