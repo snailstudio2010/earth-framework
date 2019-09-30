@@ -11,12 +11,12 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.snailstudio2010.earthframework.EarthUtils;
 import com.snailstudio2010.earthframework.MarkerLayout;
 import com.snailstudio2010.earthframework.R;
 import com.snailstudio2010.earthframework.entity.ArticlePoint;
 import com.snailstudio2010.libutils.ArrayUtils;
 import com.snailstudio2010.libutils.DisplayUtils;
-import com.snailstudio2010.libutils.ImageLoader;
 
 import java.util.List;
 import java.util.Set;
@@ -28,15 +28,12 @@ import static com.snailstudio2010.earthframework.EarthUtils.logD;
  */
 public class MarkerAdapter extends MarkerLayout.Adapter<ArticlePoint, MarkerAdapter.ViewHolder> {
 
-    private ImageLoader mImageLoader;
-
     private Context context;
     private List<ArticlePoint> mList;
 
     public MarkerAdapter(Context context, List<ArticlePoint> list) {
         this.context = context;
         this.mList = list;
-        this.mImageLoader = new ImageLoader(context);
     }
 
     @NonNull
@@ -88,8 +85,11 @@ public class MarkerAdapter extends MarkerLayout.Adapter<ArticlePoint, MarkerAdap
         new Thread() {
             public void run() {
                 try {
-                    hashPoint.bitmap = mImageLoader.getBitmap(hashPoint.photo);
+                    hashPoint.bitmap = EarthUtils.getImageLoader(context)
+                            .getBitmap(hashPoint.photo);
                 } catch (Exception e) {
+                    e.printStackTrace();
+                } catch (Error e) {
                     e.printStackTrace();
                 } finally {
                     resolve.run();

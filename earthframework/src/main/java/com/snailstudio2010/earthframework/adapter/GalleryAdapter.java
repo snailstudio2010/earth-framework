@@ -1,7 +1,9 @@
 package com.snailstudio2010.earthframework.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Vibrator;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -13,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.snailstudio2010.earthframework.EarthUtils;
 import com.snailstudio2010.earthframework.R;
 import com.snailstudio2010.earthframework.entity.ArticlePoint;
 import com.snailstudio2010.earthframework.gallery.GalleryView;
@@ -90,14 +93,22 @@ public class GalleryAdapter extends PagerAdapter {
             ivAvatar.setLayoutParams(rll);
         }
 
-//        if (!TextUtils.isEmpty(item.getPhoto())) {
-//            // "http://cdn.national-space.com/Fhz22vfh7EhUO3igOggwdn2UZqu-"
-//            ImageUtils.loadImage(mContext, item.getPhoto(), ivAvatar, R.mipmap.toolbar, true);
-//        } else {
-//            new Handler().postDelayed(() ->
-//                    ImageUtils.loadImage(mContext, item.getPhoto(),
-//                            ivAvatar, R.mipmap.toolbar, true), 100);
-//        }
+        if (!TextUtils.isEmpty(item.photo)) {
+            new Thread() {
+                public void run() {
+                    try {
+                        Bitmap bitmap = EarthUtils.getImageLoader(mContext)
+                                .getBitmap(item.photo);
+                        new Handler(Looper.getMainLooper()).post(
+                                () -> ivAvatar.setImageBitmap(bitmap));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } catch (Error e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.start();
+        }
 
         view.setTag(position);
         container.addView(view);

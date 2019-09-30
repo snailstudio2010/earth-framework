@@ -4,6 +4,7 @@
  */
 package com.snailstudio2010.earthframework;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.esri.arcgisruntime.concurrent.ListenableFuture;
@@ -12,6 +13,7 @@ import com.esri.arcgisruntime.mapping.view.Camera;
 import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.SceneView;
+import com.snailstudio2010.libutils.ImageLoader;
 import com.snailstudio2010.libutils.NotNull;
 
 /**
@@ -19,6 +21,12 @@ import com.snailstudio2010.libutils.NotNull;
  */
 public final class EarthUtils {
     public static final String TAG = "earth-framework";
+    public static ImageLoader mImageLoader;
+
+    public static ImageLoader getImageLoader(Context context) {
+        if(mImageLoader == null) mImageLoader = new ImageLoader(context);
+        return mImageLoader;
+    }
 
     private EarthUtils() {
     }
