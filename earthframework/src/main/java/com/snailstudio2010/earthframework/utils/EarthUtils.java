@@ -2,7 +2,7 @@
  * Copyright (C) 2019 xuqiqiang. All rights reserved.
  * Earth Framework
  */
-package com.snailstudio2010.earthframework;
+package com.snailstudio2010.earthframework.utils;
 
 import android.content.Context;
 import android.util.Log;
@@ -13,6 +13,7 @@ import com.esri.arcgisruntime.mapping.view.Camera;
 import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.SceneView;
+import com.snailstudio2010.earthframework.BuildConfig;
 import com.snailstudio2010.libutils.ImageLoader;
 import com.snailstudio2010.libutils.NotNull;
 

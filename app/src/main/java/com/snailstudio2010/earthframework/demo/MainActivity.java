@@ -18,18 +18,18 @@ import com.esri.arcgisruntime.mapping.Basemap;
 import com.esri.arcgisruntime.mapping.view.Camera;
 import com.esri.arcgisruntime.mapping.view.DefaultSceneViewOnTouchListener;
 import com.esri.arcgisruntime.mapping.view.SceneView;
-import com.snailstudio2010.earthframework.EarthUtils;
 import com.snailstudio2010.earthframework.MarkerLayout;
 import com.snailstudio2010.earthframework.MarkerPoint;
 import com.snailstudio2010.earthframework.adapter.MarkerAdapter;
 import com.snailstudio2010.earthframework.entity.ArticlePoint;
+import com.snailstudio2010.earthframework.utils.EarthUtils;
 import com.snailstudio2010.libutils.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.snailstudio2010.earthframework.EarthUtils.logD;
+import static com.snailstudio2010.earthframework.utils.EarthUtils.logD;
 
 /**
  * Created by xuqiqiang on 2019/08/12.

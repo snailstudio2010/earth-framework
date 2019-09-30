@@ -2,7 +2,7 @@
  * Copyright (C) 2019 xuqiqiang. All rights reserved.
  * Earth Framework
  */
-package com.snailstudio2010.earthframework;
+package com.snailstudio2010.earthframework.utils;
 
 /**
  * Created by xuqiqiang on 2019/08/12.

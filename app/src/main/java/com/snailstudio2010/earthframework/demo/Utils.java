@@ -7,7 +7,7 @@ package com.snailstudio2010.earthframework.demo;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.mapping.view.Camera;
 import com.esri.arcgisruntime.mapping.view.SceneView;
-import com.snailstudio2010.earthframework.EarthUtils;
+import com.snailstudio2010.earthframework.utils.EarthUtils;
 import com.snailstudio2010.libutils.NotNull;
 
 /**

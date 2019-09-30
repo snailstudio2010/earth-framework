@@ -11,17 +11,17 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.snailstudio2010.earthframework.EarthUtils;
 import com.snailstudio2010.earthframework.MarkerLayout;
 import com.snailstudio2010.earthframework.R;
 import com.snailstudio2010.earthframework.entity.ArticlePoint;
+import com.snailstudio2010.earthframework.utils.EarthUtils;
 import com.snailstudio2010.libutils.ArrayUtils;
 import com.snailstudio2010.libutils.DisplayUtils;
 
 import java.util.List;
 import java.util.Set;
 
-import static com.snailstudio2010.earthframework.EarthUtils.logD;
+import static com.snailstudio2010.earthframework.utils.EarthUtils.logD;
 
 /**
  * Created by xuqiqiang on 2019/09/27.

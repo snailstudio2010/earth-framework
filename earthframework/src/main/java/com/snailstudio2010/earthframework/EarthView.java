@@ -32,6 +32,9 @@ import com.esri.arcgisruntime.mapping.view.SceneView;
 import com.snailstudio2010.earthframework.entity.ArticlePoint;
 import com.snailstudio2010.earthframework.gallery.GalleryView;
 import com.snailstudio2010.earthframework.listener.EarthViewListener;
+import com.snailstudio2010.earthframework.utils.Constants;
+import com.snailstudio2010.earthframework.utils.EarthUtils;
+import com.snailstudio2010.earthframework.utils.GPSUtils;
 import com.snailstudio2010.libutils.ArrayUtils;
 import com.snailstudio2010.libutils.NotNull;
 
@@ -59,6 +62,7 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
 
     private boolean mLocationShowFlag;
     private boolean mLocationFlyTo;
+    private boolean mLocationUseCompass;
     private AMapLocationListener mLocationListener;
 
     private List<EarthViewListener> mListeners = new ArrayList<>();
@@ -247,7 +251,7 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
         return mOption;
     }
 
-    public boolean startLocation(boolean showFlag, boolean flyTo, AMapLocationListener listener) {
+    public boolean startLocation(boolean showFlag, boolean flyTo, boolean useCompass, AMapLocationListener listener) {
         int requestPermissionsCode = 2;
         String[] requestPermissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
 
@@ -263,6 +267,7 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
             }
             mLocationShowFlag = showFlag;
             mLocationFlyTo = flyTo;
+            mLocationUseCompass = useCompass;
             mLocationListener = listener;
             locationClient.startLocation();
         }
@@ -271,27 +276,26 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
 
     @Override
     public void onLocationChanged(AMapLocation location) {
-        if (mLocationListener != null)
-            mLocationListener.onLocationChanged(location);
         if (null != location) {
-//            mRootView.dismissProgress();
 
             if (location.getErrorCode() == 0) {
+
+                double[] point = GPSUtils.gcj02_To_Gps84(location.getLatitude(), location.getLongitude());
+                location.setLatitude(point[0]);
+                location.setLongitude(point[1]);
 
                 if (mLocationFlyTo) {
                     resetMap(() -> {
                         double targetAltitude = Constants.mAltitudes[Constants.mAltitudes.length - 2];
                         Point target = new Point(location.getLongitude(), location.getLatitude(), targetAltitude);
                         EarthUtils.moveMap(mSceneView, target, calcDuration(targetAltitude), () -> {
-                            if (mLocationShowFlag) mMarkerLayout.createLocationGraphic(location);
+                            if (mLocationShowFlag)
+                                mMarkerLayout.createLocationGraphic(location, mLocationUseCompass);
                         }, false);
                     });
                 } else if (mLocationShowFlag) {
-                    mMarkerLayout.createLocationGraphic(location);
+                    mMarkerLayout.createLocationGraphic(location, mLocationUseCompass);
                 }
-
-//                Utils.mLocation = new Point(location.getLongitude(), location.getLatitude(), SpatialReferences.getWgs84());
-//                mRootView.onGetLocation(location, true);
             } else {
                 Toast.makeText(mContext, location.getLocationDetail(), Toast.LENGTH_SHORT).show();
                 if (location.getErrorCode() == 12) {
@@ -306,6 +310,9 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
                 }
             }
         }
+
+        if (mLocationListener != null)
+            mLocationListener.onLocationChanged(location);
     }
 
     private class EarthViewOnTouchListener extends DefaultSceneViewOnTouchListener {

@@ -4,6 +4,7 @@
  */
 package com.snailstudio2010.earthframework.demo;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -29,6 +30,7 @@ public class EarthActivity extends BaseActivity implements MarkerLayout.OnMarker
 
     private EarthView mEarthView;
     private MarkerAdapter mMarkerAdapter;
+    private ProgressDialog mProgressDialog;
     private Handler mHandler = new Handler(Looper.getMainLooper());
 
     @Override
@@ -44,6 +46,14 @@ public class EarthActivity extends BaseActivity implements MarkerLayout.OnMarker
         ivRefresh.setOnClickListener(v -> {
             if (mMarkerAdapter != null) mMarkerAdapter.clear();
             mEarthView.resetMap(() -> mHandler.postDelayed(this::onRefreshMarkers, 1000));
+        });
+
+        ImageView ivLocation = findViewById(R.id.iv_location);
+        ivLocation.setOnClickListener(v -> {
+            if (mEarthView.startLocation(true, true, true, this)) {
+                mProgressDialog = ProgressDialog.show(this,
+                        null, "定位中", true, true);
+            }
         });
     }
 
@@ -66,8 +76,7 @@ public class EarthActivity extends BaseActivity implements MarkerLayout.OnMarker
 
     @Override
     public void onMarkerTap(MarkerPoint hashPoint, Set<MarkerPoint> set) {
-//        mEarthView.flyToMarker(hashPoint, set, true);
-        mEarthView.startLocation(true, true, this);
+        mEarthView.flyToMarker(hashPoint, set, true);
     }
 
     @Override
@@ -76,6 +85,8 @@ public class EarthActivity extends BaseActivity implements MarkerLayout.OnMarker
 
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
-
+        if (mProgressDialog != null) {
+            mProgressDialog.dismiss();
+        }
     }
 }

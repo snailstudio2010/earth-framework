@@ -35,6 +35,7 @@ import com.esri.arcgisruntime.symbology.MarkerSymbol;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
+import com.snailstudio2010.earthframework.utils.EarthUtils;
 import com.snailstudio2010.libutils.ArrayUtils;
 import com.snailstudio2010.libutils.DisplayUtils;
 import com.snailstudio2010.libutils.NotNull;
@@ -52,8 +53,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static com.snailstudio2010.earthframework.EarthUtils.logD;
-import static com.snailstudio2010.earthframework.EarthUtils.logE;
+import static com.snailstudio2010.earthframework.utils.EarthUtils.logD;
+import static com.snailstudio2010.earthframework.utils.EarthUtils.logE;
 
 public class MarkerLayout implements SensorEventListener {
 
@@ -83,6 +84,7 @@ public class MarkerLayout implements SensorEventListener {
     private GraphicsOverlay mGraphicsOverlay;
     private boolean isMapMoving;
     private Bitmap mBitmapLocation;
+    private Bitmap mBitmapLocationCompass;
     private Bitmap mBitmapSearchLocation;
     private Map<MarkerPoint, Set<MarkerPoint>> map;
     private Map<MarkerPoint, Marker> mMarkerMap = new LinkedHashMap<>();
@@ -90,6 +92,7 @@ public class MarkerLayout implements SensorEventListener {
     private long mMapStopTime;
     private volatile boolean enabled;
     private Adapter mAdapter;
+    private SensorManager mSensorManager;
 
     private SingleTaskHandler mHandler = new SingleTaskHandler(Looper.getMainLooper(), msg -> {
         if (msg.what == MESSAGE_MAP_MOVE_STOP) {
@@ -176,7 +179,8 @@ public class MarkerLayout implements SensorEventListener {
     }
 
     private void initBitmap() {
-        mBitmapLocation = BitmapFactory.decodeResource(context.getResources(), USE_COMPASS ? R.mipmap.ic_location_compass : R.mipmap.ic_location);
+        mBitmapLocation = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_location);
+        mBitmapLocationCompass = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_location_compass);
         mBitmapSearchLocation = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_location_small);
     }
 
@@ -251,23 +255,27 @@ public class MarkerLayout implements SensorEventListener {
     }
 
     public void createLocationGraphic(Location location) {
-        createLocationGraphic(location.getLongitude(), location.getLatitude());
+        createLocationGraphic(location.getLongitude(), location.getLatitude(), false);
+    }
+
+    public void createLocationGraphic(Location location, boolean useCompass) {
+        createLocationGraphic(location.getLongitude(), location.getLatitude(), useCompass);
     }
 
     @SuppressWarnings("deprecation")
-    private void createLocationGraphic(double longitude, double latitude) {
+    private void createLocationGraphic(double longitude, double latitude, boolean useCompass) {
         if (mLocationGraphic != null) {
             EarthUtils.removeGraphic(mGraphicsOverlay, mLocationGraphic);
-        } else {
-            if (USE_COMPASS) {
-                SensorManager manager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-                Sensor defaultSensor = manager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
-                manager.registerListener(this, defaultSensor, SensorManager.SENSOR_DELAY_GAME);
-            }
+        }
+        if (useCompass && mSensorManager == null) {
+            mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+            Sensor defaultSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+            mSensorManager.registerListener(this, defaultSensor, SensorManager.SENSOR_DELAY_GAME);
         }
         Point point = new Point(longitude, latitude, SpatialReferences.getWgs84());
 
-        mLocationMarkerSymbol = new PictureMarkerSymbol(new BitmapDrawable(mBitmapLocation));
+        mLocationMarkerSymbol = new PictureMarkerSymbol(new BitmapDrawable(
+                useCompass ? mBitmapLocationCompass : mBitmapLocation));
         mLocationGraphic = new Graphic(point, mLocationMarkerSymbol);
         mLocationGraphic.setZIndex(Z_INDEX_LOCATION);
         EarthUtils.addGraphic(mGraphicsOverlay, mLocationGraphic);
@@ -277,6 +285,10 @@ public class MarkerLayout implements SensorEventListener {
         if (mLocationGraphic != null) {
             EarthUtils.removeGraphic(mGraphicsOverlay, mLocationGraphic);
             mLocationGraphic = null;
+        }
+        if (mSensorManager != null) {
+            mSensorManager.unregisterListener(this);
+            mSensorManager = null;
         }
     }
 
@@ -505,9 +517,10 @@ public class MarkerLayout implements SensorEventListener {
         float[] values = event.values;
         float now = values[0];
 
-        logD("now:" + now);
+        logD("now:" + now + "," + mSceneView.getCurrentViewpointCamera().getHeading());
+
         if (mLocationMarkerSymbol != null) {
-            mLocationMarkerSymbol.setAngle(now);
+            mLocationMarkerSymbol.setAngle((float) (now - mSceneView.getCurrentViewpointCamera().getHeading()));
         }
     }
 

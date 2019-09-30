@@ -16,10 +16,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.snailstudio2010.earthframework.EarthUtils;
 import com.snailstudio2010.earthframework.R;
 import com.snailstudio2010.earthframework.entity.ArticlePoint;
 import com.snailstudio2010.earthframework.gallery.GalleryView;
+import com.snailstudio2010.earthframework.utils.EarthUtils;
 import com.snailstudio2010.libutils.ArrayUtils;
 import com.snailstudio2010.libutils.DisplayUtils;
 import com.snailstudio2010.libutils.NotNull;
