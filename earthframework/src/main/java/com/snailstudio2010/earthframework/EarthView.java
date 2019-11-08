@@ -12,6 +12,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -24,23 +25,32 @@ import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.mapping.ArcGISScene;
 import com.esri.arcgisruntime.mapping.Basemap;
 import com.esri.arcgisruntime.mapping.view.Camera;
 import com.esri.arcgisruntime.mapping.view.DefaultSceneViewOnTouchListener;
+import com.esri.arcgisruntime.mapping.view.Graphic;
+import com.esri.arcgisruntime.mapping.view.OrbitGeoElementCameraController;
 import com.esri.arcgisruntime.mapping.view.SceneView;
+import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.snailstudio2010.earthframework.entity.ArticlePoint;
 import com.snailstudio2010.earthframework.gallery.GalleryView;
 import com.snailstudio2010.earthframework.listener.EarthViewListener;
 import com.snailstudio2010.earthframework.utils.Constants;
 import com.snailstudio2010.earthframework.utils.EarthUtils;
 import com.snailstudio2010.earthframework.utils.GPSUtils;
+import com.snailstudio2010.earthframework.utils.Utils;
 import com.snailstudio2010.libutils.ArrayUtils;
 import com.snailstudio2010.libutils.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class EarthView extends RelativeLayout implements GalleryView.OnGalleryListener, AMapLocationListener {
 
@@ -85,6 +95,24 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
         mMask = view.findViewById(R.id.mask);
         mGalleryView = view.findViewById(R.id.gallery_view);
         mGalleryView.setOnGalleryListener(this);
+
+//        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//            }
+//        }, 5000);
+
+//        String parabola = Utils.parabola(
+//                new double[]{34.454004, 89.9021, 20000, 10, 20, 30},
+//                new double[]{42.644483, -109.084758, 20000, 0, 0, 0}
+//        );
+//        Log.d("EarthView", "parabola: " + parabola);
+//
+//        double[][] data = new Gson().fromJson(parabola, new TypeToken<double[][]>() {
+//        }.getType());
+//
+//        Log.d("EarthView", "parabola data: " + data[0][0] + "," + data.length);
     }
 
     public EarthView scene(Basemap.Type sceneType) {
@@ -143,6 +171,8 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
                     mMask.setVisibility(View.GONE);
 //                    mMarkerLayout.setOnMarkerTapListener(this);
                     if (onReady != null) onReady.run();
+
+
                 }, 1000));
     }
 
@@ -176,7 +206,7 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
     public void resetMap(Runnable onComplete) {
         Camera camera = new Camera(mLatitude, mLongitude, mAltitude,
                 mHeading, mPitch, mRoll);
-        EarthUtils.moveMap(mSceneView, camera, calcDuration(mSceneView), onComplete, false);
+        EarthUtils.flyTo(mSceneView, camera, calcDuration(mSceneView), onComplete, false);
     }
 
     private float calcDuration(@NotNull SceneView sceneView) {
@@ -252,6 +282,149 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
     }
 
     public boolean startLocation(boolean showFlag, boolean flyTo, boolean useCompass, AMapLocationListener listener) {
+
+
+//        if (true) {
+//
+//            Camera camera = mSceneView.getCurrentViewpointCamera();
+//            Point point = camera.getLocation();
+//            String parabola = Utils.parabola(
+//                            new double[]{point.getY(), point.getX(), point.getZ(), camera.getHeading(), camera.getPitch(), camera.getRoll()},
+////                    new double[]{mLatitude, mLongitude, mAltitude, mHeading, mPitch, mRoll},
+//                    new double[]{42.644483, -109.084758, 200000, 0, 0, 0}
+//            );
+//            Log.d("EarthView", "parabola: " + parabola);
+//
+//            double[][] data = new Gson().fromJson(parabola, new TypeToken<double[][]>() {
+//            }.getType());
+//
+//            Log.d("EarthView", "parabola length: " + data.length);
+//
+////            SimpleMarkerSymbol pointSymbol = new SimpleMarkerSymbol(
+////                    SimpleMarkerSymbol.Style.CIRCLE, 0xFFFFC209, 10.0f);
+////            Graphic mPlane3D = new Graphic(new Point(0, 0, 0, SpatialReferences.getWgs84()), pointSymbol);
+////            mMarkerLayout.getGraphicsOverlay().getGraphics().add(mPlane3D);
+////
+////
+////            OrbitGeoElementCameraController mOrbitCameraController
+////                    = new OrbitGeoElementCameraController(mPlane3D, mAltitude);
+//////                    mOrbitCameraController.setCameraPitchOffset(75.0);
+////            mSceneView.setCameraController(mOrbitCameraController);
+//
+//
+//            Timer mTimer = new Timer();
+//            mTimer.scheduleAtFixedRate(new TimerTask() {
+//                int i = 0;
+//
+//                @Override
+//                public void run() {
+//                    if (i >= data.length - 1) {
+//                        mTimer.cancel();
+//                        return;
+//                    }
+//                    double[] item = data[i++];
+//
+//                    Log.d("EarthView", "setViewpointCamera: "
+//                            + i + "," + item[1] + "," + item[0] + "," + item[2]
+//                            + "," + item[3] + "," + item[4] + "," + item[5]);
+//
+////                    mPlane3D.setGeometry(new Point(item[1], item[0], item[2], SpatialReferences.getWgs84()));
+////                    mPlane3D.getAttributes().put("HEADING", item[3]);
+////                    mPlane3D.getAttributes().put("PITCH", item[4]);
+////                    mPlane3D.getAttributes().put("ROLL", item[5]);
+////
+////                    mOrbitCameraController.setCameraDistance(item[2]);
+//
+//                    mSceneView.setViewpointCameraAsync(
+//                            new Camera(item[0], item[1], item[2], item[3], item[4], item[5]),
+//                            0);
+//
+//                }
+//            }, 0, 5);
+//
+//            return false;
+////            if (true) {
+////                return false;
+////            }
+////
+////            new Thread() {
+////                public void run() {
+////                    Camera camera = mSceneView.getCurrentViewpointCamera();
+////                    Point point = camera.getLocation();
+////                    String parabola = Utils.parabola(
+//////                            new double[]{point.getY(), point.getX(), point.getZ(), camera.getHeading(), camera.getPitch(), camera.getRoll()},
+////                            new double[]{mLatitude, mLongitude, mAltitude,
+////                                    mHeading, mPitch, mRoll},
+////                            new double[]{42.644483, -109.084758, 20000000, 0, 0, 0}
+////                    );
+////                    Log.d("EarthView", "parabola: " + parabola);
+////
+////                    double[][] data = new Gson().fromJson(parabola, new TypeToken<double[][]>() {
+////                    }.getType());
+////
+////                    Log.d("EarthView", "parabola length: " + data.length);
+////
+//////                    for (int i = 0; i < data.length - 1; i++) {
+//////                        Log.d("EarthView", "setViewpointCamera: " + i);
+//////                        double[] item = data[i];
+//////                        mSceneView.setViewpointCameraAsync(
+//////                                new Camera(item[0], item[1], item[2], item[3], item[4], item[5]),
+//////                                0.005f);
+//////                        try {
+//////                            sleep(5);
+//////                        } catch (InterruptedException e) {
+//////                            e.printStackTrace();
+//////                        }
+//////                    }
+////
+////
+//////                    for(double[] item : data) {
+//////
+//////                    }
+////
+//////                    while (true) {
+//////
+//////                        mSceneView.setViewpointCamera(new Camera());
+//////                        try {
+//////                            sleep(5);
+//////                        } catch (InterruptedException e) {
+//////                            e.printStackTrace();
+//////                        }
+//////                    }
+////
+////
+////                    SimpleMarkerSymbol pointSymbol = new SimpleMarkerSymbol(
+////                            SimpleMarkerSymbol.Style.CIRCLE, 0xFFFFC209, 10.0f);
+////                    Graphic mPlane3D = new Graphic(new Point(0, 0, 0, SpatialReferences.getWgs84()), pointSymbol);
+////                    mMarkerLayout.getGraphicsOverlay().getGraphics().add(mPlane3D);
+////
+////
+////                    OrbitGeoElementCameraController mOrbitCameraController
+////                            = new OrbitGeoElementCameraController(mPlane3D, 20000000);
+//////                    mOrbitCameraController.setCameraPitchOffset(75.0);
+////                    mSceneView.setCameraController(mOrbitCameraController);
+////
+////                    for (int i = 0; i < data.length - 1; i++) {
+////                        Log.d("EarthView", "setViewpointCamera: " + i);
+////                        double[] item = data[i];
+////
+////                        mPlane3D.setGeometry(new Point(item[1], item[0], item[2], SpatialReferences.getWgs84()));
+////                        mPlane3D.getAttributes().put("HEADING", item[3]);
+////                        mPlane3D.getAttributes().put("PITCH", item[4]);
+////                        mPlane3D.getAttributes().put("ROLL", item[5]);
+//////                        mSceneView.setViewpointCameraAsync(
+//////                                new Camera(item[0], item[1], item[2], item[3], item[4], item[5]),
+//////                                0.005f);
+////                        try {
+////                            sleep(5);
+////                        } catch (InterruptedException e) {
+////                            e.printStackTrace();
+////                        }
+////                    }
+////                }
+////            }.start();
+////            return false;
+//        }
         int requestPermissionsCode = 2;
         String[] requestPermissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
 
@@ -288,7 +461,7 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
                     resetMap(() -> {
                         double targetAltitude = Constants.mAltitudes[Constants.mAltitudes.length - 2];
                         Point target = new Point(location.getLongitude(), location.getLatitude(), targetAltitude);
-                        EarthUtils.moveMap(mSceneView, target, calcDuration(targetAltitude), () -> {
+                        EarthUtils.flyTo(mSceneView, target, calcDuration(targetAltitude), () -> {
                             if (mLocationShowFlag)
                                 mMarkerLayout.createLocationGraphic(location, mLocationUseCompass);
                         }, false);

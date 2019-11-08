@@ -178,6 +178,10 @@ public class MarkerLayout implements SensorEventListener {
         mSceneView.getGraphicsOverlays().add(mGraphicsOverlay);
     }
 
+    public GraphicsOverlay getGraphicsOverlay() {
+        return mGraphicsOverlay;
+    }
+
     private void initBitmap() {
         mBitmapLocation = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_location);
         mBitmapLocationCompass = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_location_compass);
