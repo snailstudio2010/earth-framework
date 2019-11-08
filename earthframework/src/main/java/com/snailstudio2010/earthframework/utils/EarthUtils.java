@@ -37,6 +37,10 @@ public final class EarthUtils {
 
     public static native String parabola(double[] startPoint, double[] endPoint);
 
+    public static void flyTo(SceneView sceneView, Point target, float animationDuration) {
+        flyTo(sceneView, target, animationDuration, null, false);
+    }
+
     public static void flyTo(SceneView sceneView, Point target, float animationDuration, Runnable runnable, boolean strict) {
         flyTo(sceneView, new Camera(target, 0, 0, 0), animationDuration, runnable, strict);
     }

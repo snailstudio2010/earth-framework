@@ -8,11 +8,13 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import com.snailstudio2010.earthframework.EarthView;
+
 public interface IEarthViewListener {
 
     void onTouch(View view, MotionEvent motionEvent);
 
-    void onSingleTapConfirmed(MotionEvent e);
+    boolean onSingleTapConfirmed(MotionEvent e);
 
     void onScale(ScaleGestureDetector scaleGestureDetector);
 
@@ -42,4 +44,5 @@ public interface IEarthViewListener {
 
     void onFling();
 
+    void onStateChanged(EarthView.EarthState state);
 }

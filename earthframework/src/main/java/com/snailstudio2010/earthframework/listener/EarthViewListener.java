@@ -8,6 +8,8 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import com.snailstudio2010.earthframework.EarthView;
+
 public class EarthViewListener implements IEarthViewListener {
 
     @Override
@@ -16,8 +18,8 @@ public class EarthViewListener implements IEarthViewListener {
     }
 
     @Override
-    public void onSingleTapConfirmed(MotionEvent e) {
-
+    public boolean onSingleTapConfirmed(MotionEvent e) {
+        return false;
     }
 
     @Override
@@ -87,6 +89,11 @@ public class EarthViewListener implements IEarthViewListener {
 
     @Override
     public void onFling() {
+
+    }
+
+    @Override
+    public void onStateChanged(EarthView.EarthState state) {
 
     }
 }

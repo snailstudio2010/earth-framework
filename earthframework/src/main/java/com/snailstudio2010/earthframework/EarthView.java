@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
@@ -25,26 +24,21 @@ import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.esri.arcgisruntime.geometry.Point;
-import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.mapping.ArcGISScene;
 import com.esri.arcgisruntime.mapping.Basemap;
 import com.esri.arcgisruntime.mapping.view.Camera;
 import com.esri.arcgisruntime.mapping.view.DefaultSceneViewOnTouchListener;
-import com.esri.arcgisruntime.mapping.view.Graphic;
-import com.esri.arcgisruntime.mapping.view.OrbitGeoElementCameraController;
 import com.esri.arcgisruntime.mapping.view.SceneView;
-import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.snailstudio2010.earthframework.entity.ArticlePoint;
 import com.snailstudio2010.earthframework.gallery.GalleryView;
 import com.snailstudio2010.earthframework.listener.EarthViewListener;
+import com.snailstudio2010.earthframework.listener.IEarthViewListener;
 import com.snailstudio2010.earthframework.utils.Constants;
 import com.snailstudio2010.earthframework.utils.EarthUtils;
 import com.snailstudio2010.earthframework.utils.GPSUtils;
-import com.snailstudio2010.earthframework.utils.Utils;
 import com.snailstudio2010.libutils.ArrayUtils;
 import com.snailstudio2010.libutils.NotNull;
+import com.snailstudio2010.libutils.SingleTaskHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +48,14 @@ import java.util.TimerTask;
 
 public class EarthView extends RelativeLayout implements GalleryView.OnGalleryListener, AMapLocationListener {
 
+    private static final boolean AUTO_ROTATE = true;
+    private double latitude;
+    private double longitude;
+    private double altitude;
+    private double heading;
+    private double pitch;
+    private double roll;
+    private Timer mTimer;
     private Context mContext;
     private ArcGISScene mScene;
     private double mLatitude = Constants.mLatitude;
@@ -62,20 +64,19 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
     private double mHeading = Constants.mHeading;
     private double mPitch = Constants.mPitch;
     private double mRoll = Constants.mRoll;
-
     private SceneView mSceneView;
     private View mMask;
     private MarkerLayout mMarkerLayout;
     private GalleryView mGalleryView;
     private AMapLocationClient locationClient;
-    private Handler mHandler = new Handler(Looper.getMainLooper());
-
+    private SingleTaskHandler mHandler = new SingleTaskHandler(Looper.getMainLooper());
+    private EarthState mState = EarthState.IDLE;
     private boolean mLocationShowFlag;
     private boolean mLocationFlyTo;
     private boolean mLocationUseCompass;
     private AMapLocationListener mLocationListener;
-
-    private List<EarthViewListener> mListeners = new ArrayList<>();
+    private List<IEarthViewListener> mListeners = new ArrayList<>();
+    private MarkerLayout.OnMarkerTapListener mOnMarkerTapListener;
 
     public EarthView(Context context) {
         this(context, null, 0);
@@ -159,25 +160,151 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
 
         if (mScene == null)
             mScene = new ArcGISScene(Basemap.Type.IMAGERY);
-        Camera camera = new Camera(mLatitude, mLongitude, mAltitude,
+        Camera camera = new Camera(mLatitude, mLongitude, 2000000,
                 mHeading, mPitch, mRoll);
 
         mSceneView.setScene(mScene);
         mSceneView.setViewpointCamera(camera);
         mMarkerLayout = new MarkerLayout(mContext, mSceneView);
+        mMarkerLayout.setOnMarkerTapListener(new MarkerLayout.OnMarkerTapListener() {
+            @Override
+            public void onMarkerTap(MarkerPoint hashPoint, Set<MarkerPoint> set) {
+                if (mOnMarkerTapListener != null) mOnMarkerTapListener.onMarkerTap(hashPoint, set);
+            }
+
+            @Override
+            public void onMapStop() {
+                setState(EarthState.IDLE);
+                if (mOnMarkerTapListener != null) mOnMarkerTapListener.onMapStop();
+            }
+        });
         mSceneView.setOnTouchListener(new EarthViewOnTouchListener(mSceneView));
         mScene.addDoneLoadingListener(() ->
                 mHandler.postDelayed(() -> {
                     mMask.setVisibility(View.GONE);
 //                    mMarkerLayout.setOnMarkerTapListener(this);
                     if (onReady != null) onReady.run();
-
-
+                    onMapReady();
                 }, 1000));
+
+        addListener(new DefaultEarthViewListener());
+    }
+
+    private void onMapReady() {
+        if (AUTO_ROTATE) {
+            startRotation();
+        }
+    }
+
+    private double fixAngle(double angle) {
+        if (angle > 180) angle -= 360;
+        if (angle <= -180) angle += 360;
+        return angle;
+    }
+
+    private double toZero(double num, double a) {
+        if (Math.abs(num) <= a / 2) return 0;
+        if (num > 0) return num - a;
+        else return num + a;
+    }
+
+    private double toNum(double num, double target, double a) {
+        if (Math.abs(num - target) <= a / 2) return target;
+        if (num > target) return num - a;
+        else return num + a;
+    }
+
+    private void startRotation() {
+
+        if (mState != EarthState.IDLE) return;
+
+        Camera camera = mSceneView.getCurrentViewpointCamera();
+        Point point = camera.getLocation();
+        Log.d("EarthView", "onMapReady: " + point.getY() + "," + point.getX() + "," + point.getZ() + "," +
+                camera.getHeading() + "," + camera.getPitch() + "," + camera.getRoll());
+
+//        double latitude = point.getY();
+//        double longitude = point.getX();
+//        double altitude = point.getZ();
+//        double heading = camera.getHeading();
+//        double pitch = camera.getPitch();
+//        double roll = camera.getRoll();
+
+        latitude = point.getY();
+        longitude = point.getX();
+        altitude = point.getZ();
+        heading = camera.getHeading();
+        pitch = camera.getPitch();
+        roll = camera.getRoll();
+
+        if (mTimer != null) {
+            mTimer.cancel();
+        }
+        mTimer = new Timer();
+        mTimer.scheduleAtFixedRate(new TimerTask() {
+            int i = 0;
+
+            @Override
+            public void run() {
+
+//                Camera camera = mSceneView.getCurrentViewpointCamera();
+//                Point point = camera.getLocation();
+//                latitude = point.getY();
+//                longitude = point.getX();
+//                altitude = point.getZ();
+//                heading = camera.getHeading();
+//                pitch = camera.getPitch();
+//                roll = camera.getRoll();
+
+
+                double acc = 0.1;
+                latitude = toZero(latitude, acc);
+                longitude += acc;
+                altitude = toNum(altitude, Constants.mAltitude, 20000);
+                heading = toZero(fixAngle(heading), acc);
+                pitch = toZero(fixAngle(pitch), acc);
+                roll = toZero(fixAngle(roll), acc);
+
+                Log.d("EarthView", "onMapReady latitude: " + latitude);
+                Log.d("EarthView", "onMapReady longitude: " + longitude);
+                Log.d("EarthView", "onMapReady altitude: " + altitude);
+                Log.d("EarthView", "onMapReady heading: " + heading);
+                Log.d("EarthView", "onMapReady pitch: " + pitch);
+                Log.d("EarthView", "onMapReady roll: " + roll);
+
+//                Log.d("EarthView", "onMapReady run: " + latitude + "," + longitude + "," + altitude + "," +
+//                        heading + "," + pitch + "," + roll);
+
+                mSceneView.setViewpointCameraAsync(
+                        new Camera(latitude, longitude, altitude, heading, pitch, roll),
+                        0);
+
+            }
+        }, 0, 5);
     }
 
     public void setOnMarkerTapListener(MarkerLayout.OnMarkerTapListener listener) {
-        mMarkerLayout.setOnMarkerTapListener(listener);
+        mOnMarkerTapListener = listener;
+//        mMarkerLayout.setOnMarkerTapListener(listener);
+//        mMarkerLayout.setOnMarkerTapListener(new MarkerLayout.OnMarkerTapListener() {
+//            @Override
+//            public void onMarkerTap(MarkerPoint hashPoint, Set<MarkerPoint> set) {
+//                if (listener != null) listener.onMarkerTap(hashPoint, set);
+//            }
+//
+//            @Override
+//            public void onMapStop() {
+//                mState = EarthState.IDLE;
+//                if (listener != null) listener.onMapStop();
+//            }
+//        });
+    }
+
+    private void setState(EarthState state) {
+        mState = state;
+        for (IEarthViewListener listener : mListeners) {
+            listener.onStateChanged(mState);
+        }
     }
 
     public void setAdapter(@NotNull MarkerLayout.Adapter adapter) {
@@ -192,7 +319,8 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
             targetZ = EarthUtils.getTargetAltitude(point);
         }
         Point target = new Point(hashPoint.x, hashPoint.y, targetZ);
-        EarthUtils.moveMap(mSceneView, target, calcDuration(targetZ));
+        EarthUtils.flyTo(mSceneView, target, calcDuration(targetZ));
+        setState(EarthState.FLYTO);
 
         if (showInfo) {
             List<ArticlePoint> list = ArrayUtils.createList(((ArticlePoint) hashPoint));
@@ -206,7 +334,8 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
     public void resetMap(Runnable onComplete) {
         Camera camera = new Camera(mLatitude, mLongitude, mAltitude,
                 mHeading, mPitch, mRoll);
-        EarthUtils.flyTo(mSceneView, camera, calcDuration(mSceneView), onComplete, false);
+        EarthUtils.moveMap(mSceneView, camera, calcDuration(mSceneView), onComplete, false);
+        setState(EarthState.FLYTO);
     }
 
     private float calcDuration(@NotNull SceneView sceneView) {
@@ -243,7 +372,8 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
         mMarkerLayout.createSearchLocationGraphic(articleItem.x, articleItem.y);
         Point target = new Point(articleItem.x, articleItem.y,
                 mSceneView.getCurrentViewpointCamera().getLocation().getZ());
-        EarthUtils.moveMap(mSceneView, target, Constants.mFlyToPeriod);
+        EarthUtils.flyTo(mSceneView, target, Constants.mFlyToPeriod);
+        setState(EarthState.FLYTO);
     }
 
     @Override
@@ -460,12 +590,13 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
 
                 if (mLocationFlyTo) {
 //                    resetMap(() -> {
-                        double targetAltitude = Constants.mAltitudes[Constants.mAltitudes.length - 2];
-                        Point target = new Point(location.getLongitude(), location.getLatitude(), targetAltitude);
-                        EarthUtils.flyTo(mSceneView, target, calcDuration(targetAltitude), () -> {
-                            if (mLocationShowFlag)
-                                mMarkerLayout.createLocationGraphic(location, mLocationUseCompass);
-                        }, false);
+                    double targetAltitude = Constants.mAltitudes[Constants.mAltitudes.length - 2];
+                    Point target = new Point(location.getLongitude(), location.getLatitude(), targetAltitude);
+                    EarthUtils.flyTo(mSceneView, target, calcDuration(targetAltitude), () -> {
+                        if (mLocationShowFlag)
+                            mMarkerLayout.createLocationGraphic(location, mLocationUseCompass);
+                    }, false);
+                    setState(EarthState.FLYTO);
 //                    });
                 } else if (mLocationShowFlag) {
                     mMarkerLayout.createLocationGraphic(location, mLocationUseCompass);
@@ -489,6 +620,13 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
             mLocationListener.onLocationChanged(location);
     }
 
+    public enum EarthState {
+        IDLE,
+        TOUCH,
+        INERTIA,
+        FLYTO,
+    }
+
     private class EarthViewOnTouchListener extends DefaultSceneViewOnTouchListener {
 
         public EarthViewOnTouchListener(SceneView sceneView) {
@@ -497,32 +635,24 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
 
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (mMarkerLayout != null)
-                mMarkerLayout.onTouch(motionEvent);
-            for (EarthViewListener listener : mListeners) {
+            for (IEarthViewListener listener : mListeners) {
                 listener.onTouch(view, motionEvent);
             }
-
-            Camera camera = mSceneView.getCurrentViewpointCamera();
-            Point point = camera.getLocation();
-            Log.d("EarthView", "onTouch: " + point.getY() + "," + point.getX() + "," + point.getZ() + "," +
-                    camera.getHeading() + "," +  camera.getPitch() + "," + camera.getRoll());
             return super.onTouch(view, motionEvent);
         }
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-            if (mMarkerLayout != null && mMarkerLayout.onSingleTap(e))
-                return super.onSingleTapConfirmed(e);
-            for (EarthViewListener listener : mListeners) {
-                listener.onSingleTapConfirmed(e);
+            for (IEarthViewListener listener : mListeners) {
+                if (listener.onSingleTapConfirmed(e))
+                    return super.onSingleTapConfirmed(e);
             }
             return super.onSingleTapConfirmed(e);
         }
 
         @Override
         public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
-            for (EarthViewListener listener : mListeners) {
+            for (IEarthViewListener listener : mListeners) {
                 listener.onScale(scaleGestureDetector);
             }
             return super.onScale(scaleGestureDetector);
@@ -530,9 +660,7 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
 
         @Override
         public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
-            if (mMarkerLayout != null)
-                mMarkerLayout.onScaleEnd();
-            for (EarthViewListener listener : mListeners) {
+            for (IEarthViewListener listener : mListeners) {
                 listener.onScaleEnd(scaleGestureDetector);
             }
             super.onScaleEnd(scaleGestureDetector);
@@ -540,7 +668,7 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
 
         @Override
         public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
-            for (EarthViewListener listener : mListeners) {
+            for (IEarthViewListener listener : mListeners) {
                 listener.onScaleBegin(scaleGestureDetector);
             }
             return super.onScaleBegin(scaleGestureDetector);
@@ -548,81 +676,126 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
 
 
         public boolean onMultiPointerTap(MotionEvent motionEvent) {
-            for (EarthViewListener listener : mListeners) {
+            for (IEarthViewListener listener : mListeners) {
                 listener.onMultiPointerTap(motionEvent);
             }
             return super.onMultiPointerTap(motionEvent);
         }
 
         public boolean onDoubleTouchDrag(MotionEvent motionEvent) {
-            for (EarthViewListener listener : mListeners) {
+            for (IEarthViewListener listener : mListeners) {
                 listener.onDoubleTouchDrag(motionEvent);
             }
             return super.onDoubleTouchDrag(motionEvent);
         }
 
         public boolean onSinglePointerDown(MotionEvent motionEvent) {
-            for (EarthViewListener listener : mListeners) {
+            for (IEarthViewListener listener : mListeners) {
                 listener.onSinglePointerDown(motionEvent);
             }
             return super.onSinglePointerDown(motionEvent);
         }
 
         public boolean onSinglePointerUp(MotionEvent motionEvent) {
-            for (EarthViewListener listener : mListeners) {
+            for (IEarthViewListener listener : mListeners) {
                 listener.onSinglePointerUp(motionEvent);
             }
             return super.onSinglePointerUp(motionEvent);
         }
 
         public boolean onTwoPointerPitch(MotionEvent motionEvent, double pitchDelta) {
-            for (EarthViewListener listener : mListeners) {
+            for (IEarthViewListener listener : mListeners) {
                 listener.onTwoPointerPitch(motionEvent, pitchDelta);
             }
             return super.onTwoPointerPitch(motionEvent, pitchDelta);
         }
 
         public boolean onTwoPointerRotate(MotionEvent motionEvent, double rotationDelta) {
-            for (EarthViewListener listener : mListeners) {
+            for (IEarthViewListener listener : mListeners) {
                 listener.onTwoPointerRotate(motionEvent, rotationDelta);
             }
             return super.onTwoPointerRotate(motionEvent, rotationDelta);
         }
 
         public boolean onDoubleTap(MotionEvent motionEvent) {
-            for (EarthViewListener listener : mListeners) {
+            for (IEarthViewListener listener : mListeners) {
                 listener.onDoubleTap(motionEvent);
             }
             return super.onDoubleTap(motionEvent);
         }
 
         public boolean onSingleTapUp(MotionEvent motionEvent) {
-            for (EarthViewListener listener : mListeners) {
+            for (IEarthViewListener listener : mListeners) {
                 listener.onSingleTapUp(motionEvent);
             }
             return super.onSingleTapUp(motionEvent);
         }
 
         public boolean onScroll(MotionEvent motionEventFrom, MotionEvent motionEventTo, float distanceX, float distanceY) {
-            for (EarthViewListener listener : mListeners) {
+            for (IEarthViewListener listener : mListeners) {
                 listener.onScroll(motionEventFrom, motionEventTo, distanceX, distanceY);
             }
             return super.onScroll(motionEventFrom, motionEventTo, distanceX, distanceY);
         }
 
         public void onLongPress(MotionEvent motionEvent) {
-            for (EarthViewListener listener : mListeners) {
+            for (IEarthViewListener listener : mListeners) {
                 listener.onLongPress(motionEvent);
             }
             super.onLongPress(motionEvent);
         }
 
         public boolean onFling() {
-            for (EarthViewListener listener : mListeners) {
+            for (IEarthViewListener listener : mListeners) {
                 listener.onFling();
             }
             return super.onFling();
         }
 
+    }
+
+    public class DefaultEarthViewListener extends EarthViewListener {
+        @Override
+        public void onTouch(View view, MotionEvent motionEvent) {
+            if (mMarkerLayout != null)
+                mMarkerLayout.onTouch(motionEvent);
+
+//            Camera camera = mSceneView.getCurrentViewpointCamera();
+//            Point point = camera.getLocation();
+//            Log.d("EarthView", "onTouch: " + point.getY() + "," + point.getX() + "," + point.getZ() + "," +
+//                    camera.getHeading() + "," + camera.getPitch() + "," + camera.getRoll());
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                setState(EarthState.TOUCH);
+            } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                setState(EarthState.INERTIA);
+            }
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            if (mMarkerLayout != null && mMarkerLayout.onSingleTap(e))
+                return true;
+            return super.onSingleTapConfirmed(e);
+        }
+
+        @Override
+        public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
+            if (mMarkerLayout != null)
+                mMarkerLayout.onScaleEnd();
+        }
+
+        @Override
+        public void onStateChanged(EarthView.EarthState state) {
+            if (AUTO_ROTATE) {
+                if (state == EarthState.IDLE) {
+                    mHandler.postDelayedTask(EarthView.this::startRotation, 2000);
+                } else {
+                    if (mTimer != null) {
+                        mTimer.cancel();
+                        mTimer = null;
+                    }
+                }
+            }
+        }
     }
 }
