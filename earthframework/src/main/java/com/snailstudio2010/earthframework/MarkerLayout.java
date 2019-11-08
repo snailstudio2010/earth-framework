@@ -521,7 +521,7 @@ public class MarkerLayout implements SensorEventListener {
         float[] values = event.values;
         float now = values[0];
 
-        logD("now:" + now + "," + mSceneView.getCurrentViewpointCamera().getHeading());
+//        logD("now:" + now + "," + mSceneView.getCurrentViewpointCamera().getHeading());
 
         if (mLocationMarkerSymbol != null) {
             mLocationMarkerSymbol.setAngle((float) (now - mSceneView.getCurrentViewpointCamera().getHeading()));

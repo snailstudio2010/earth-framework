@@ -459,14 +459,14 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
                 location.setLongitude(point[1]);
 
                 if (mLocationFlyTo) {
-                    resetMap(() -> {
+//                    resetMap(() -> {
                         double targetAltitude = Constants.mAltitudes[Constants.mAltitudes.length - 2];
                         Point target = new Point(location.getLongitude(), location.getLatitude(), targetAltitude);
                         EarthUtils.flyTo(mSceneView, target, calcDuration(targetAltitude), () -> {
                             if (mLocationShowFlag)
                                 mMarkerLayout.createLocationGraphic(location, mLocationUseCompass);
                         }, false);
-                    });
+//                    });
                 } else if (mLocationShowFlag) {
                     mMarkerLayout.createLocationGraphic(location, mLocationUseCompass);
                 }
