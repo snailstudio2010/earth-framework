@@ -283,17 +283,18 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
 
     public boolean startLocation(boolean showFlag, boolean flyTo, boolean useCompass, AMapLocationListener listener) {
 
-
 //        if (true) {
 //
 //            Camera camera = mSceneView.getCurrentViewpointCamera();
 //            Point point = camera.getLocation();
-//            String parabola = Utils.parabola(
-//                            new double[]{point.getY(), point.getX(), point.getZ(), camera.getHeading(), camera.getPitch(), camera.getRoll()},
-////                    new double[]{mLatitude, mLongitude, mAltitude, mHeading, mPitch, mRoll},
+//            String parabola = EarthUtils.parabola(
+////                            new double[]{point.getY(), point.getX(), point.getZ(), camera.getHeading(), camera.getPitch(), camera.getRoll()},
+//                    new double[]{mLatitude, mLongitude, mAltitude, mHeading, mPitch, mRoll},
 //                    new double[]{42.644483, -109.084758, 200000, 0, 0, 0}
 //            );
 //            Log.d("EarthView", "parabola: " + parabola);
+//            Log.d("EarthView", "flyTo: " + point.getY() + "," + point.getX() + "," + point.getZ() + "," +
+//                    camera.getHeading() + "," +  camera.getPitch() + "," + camera.getRoll());
 //
 //            double[][] data = new Gson().fromJson(parabola, new TypeToken<double[][]>() {
 //            }.getType());
@@ -501,6 +502,11 @@ public class EarthView extends RelativeLayout implements GalleryView.OnGalleryLi
             for (EarthViewListener listener : mListeners) {
                 listener.onTouch(view, motionEvent);
             }
+
+            Camera camera = mSceneView.getCurrentViewpointCamera();
+            Point point = camera.getLocation();
+            Log.d("EarthView", "onTouch: " + point.getY() + "," + point.getX() + "," + point.getZ() + "," +
+                    camera.getHeading() + "," +  camera.getPitch() + "," + camera.getRoll());
             return super.onTouch(view, motionEvent);
         }
 

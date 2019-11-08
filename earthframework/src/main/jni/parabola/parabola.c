@@ -29,8 +29,8 @@ int eq0(double num) {
 
 void fixArcGISAccuracyBug(double point[]) {
     if(eq0(point[3]) == 1 || eq0(fabs(360-point[3])) == 1) point[3] = 0;
-    if(eq0(point[4]) == 1 || eq0(fabs(360-point[4])) == 1) point[3] = 0;
-    if(eq0(point[5]) == 1 || eq0(fabs(360-point[5])) == 1) point[3] = 0;
+    if(eq0(point[4]) == 1 || eq0(fabs(360-point[4])) == 1) point[4] = 0;
+    if(eq0(point[5]) == 1 || eq0(fabs(360-point[5])) == 1) point[5] = 0;
 }
 
 void fixArcGISAccuracyNumber(double startPoint[], double endPoint[]) {
@@ -129,6 +129,8 @@ char * parabola(double startPoint[], double endPoint[]) {
 
 LOGD("percent:%.16lf,%d\n", percent, i);
 LOGD("h:%.16lf,%d\n", h, i);
+
+//LOGD("head:%.16lf,%.16lf,%.16lf\n", startPoint[3], endPoint[3], (startPoint[3] + (endPoint[3] - startPoint[3]) * percent));
         //char str[50];
         sprintf(str[i],"[%.6lf,%.6lf,%.2lf,%.3lf,%.3lf,%.3lf],",
             startPoint[0] + (endPoint[0] - startPoint[0]) * percent,

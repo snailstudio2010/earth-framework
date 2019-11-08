@@ -46,6 +46,8 @@ public final class EarthUtils {
         Camera currentCamera = sceneView.getCurrentViewpointCamera();
         Point resp = currentCamera.getLocation();
         Point desp = camera.getLocation();
+        Log.d("EarthView", "flyTo: " + resp.getY() + "," + resp.getX() + "," + resp.getZ() + "," +
+                currentCamera.getHeading() + "," +  currentCamera.getPitch() + "," + currentCamera.getRoll());
         String parabola = parabola(
                 new double[]{resp.getY(), resp.getX(), resp.getZ(),
                         currentCamera.getHeading(), currentCamera.getPitch(), currentCamera.getRoll()},
